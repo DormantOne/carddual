@@ -3,6 +3,7 @@ document.getElementById('signInForm').addEventListener('submit', function(event)
     var playerName = document.getElementById('playerName').value;
     addPlayerToList(playerName);
     checkPlayerCount();
+    showWaitingArea(); // Call this function to show the waiting area
 });
 
 function addPlayerToList(name) {
