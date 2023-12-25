@@ -24,6 +24,7 @@ function addPlayerToFirebase(name) {
     const playerRef = ref(database, 'players/');
     const newPlayerRef = push(playerRef);
     set(newPlayerRef, { name: name });
+    // Do not call startListeningToPlayerChanges here
 }
 
 function startListeningToPlayerChanges() {
@@ -31,6 +32,8 @@ function startListeningToPlayerChanges() {
         updatePlayerList(snapshot.val());
     });
 }
+
+
 
 function updatePlayerList(players) {
     var playerList = document.getElementById('playerList');
@@ -87,6 +90,10 @@ function showWaitingArea() {
 
 // Set up event listeners
 document.addEventListener('DOMContentLoaded', () => {
+
+       // Ensure startListeningToPlayerChanges is called only once
+    startListeningToPlayerChanges();
+
     const signInForm = document.getElementById('signInForm');
     if (signInForm) {
         signInForm.addEventListener('submit', function(event) {
@@ -96,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
             playerAdded = true;
         });
     }
-
+    
     const clearPlayersButton = document.getElementById('clearPlayers');
     if (clearPlayersButton) {
         clearPlayersButton.addEventListener('click', function() {
@@ -109,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('startGame').disabled = true;
         });
     }
-    startListeningToPlayerChanges();
+  
 });
 
 
