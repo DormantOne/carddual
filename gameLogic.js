@@ -39,6 +39,7 @@ function startListeningToPlayerChanges() {
     });
 }
 
+
 function updatePlayerList(players) {
     var playerList = document.getElementById('playerList');
     playerList.innerHTML = '';
@@ -46,15 +47,42 @@ function updatePlayerList(players) {
     for (var key in players) {
         if (players.hasOwnProperty(key)) {
             var li = document.createElement('li');
-            li.textContent = players[key].name;
+            var checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = key;
+            checkbox.addEventListener('change', handleCheckboxChange);
+            li.appendChild(checkbox);
+
+            var label = document.createElement('label');
+            label.htmlFor = key;
+            label.textContent = players[key].name;
+            li.appendChild(label);
+
             playerList.appendChild(li);
         }
     }
 
-    if (playerAdded) {
+        if (playerAdded) {
         showWaitingArea();
     }
     checkPlayerCount();
+    
+}
+
+
+var selectedPlayers = new Set();
+function handleCheckboxChange(event) {
+    if (event.target.checked) {
+        selectedPlayers.add(event.target.id);
+        if (selectedPlayers.size > 4) {
+            event.target.checked = false;
+            selectedPlayers.delete(event.target.id);
+            alert("Only 4 players can be selected!");
+        }
+    } else {
+        selectedPlayers.delete(event.target.id);
+    }
+    document.getElementById('startGame').disabled = selectedPlayers.size !== 4;
 }
 
 function checkPlayerCount() {
