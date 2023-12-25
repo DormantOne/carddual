@@ -2,7 +2,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyDwsdgIZ1hpEmsQg7sZY0A2vEo71jyhwbY",
     authDomain: "carddual-b13da.firebaseapp.com",
@@ -17,69 +16,44 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-let selectedPlayers = new Set();
+let playerAdded = false; // Flag to track if the current player has been added
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Start listening to player changes right away
-        console.log("DOM fully loaded and parsed");
-    startListeningToPlayerChanges();
-
-    // Event listener for form submission
-    const signInForm = document.getElementById('signInForm');
-    if (signInForm) {
-        signInForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            const playerName = document.getElementById('playerName').value;
-            addPlayerToFirebase(playerName);
-        });
-    }
-
-    // Event listener for clearing players
-    const clearPlayersButton = document.getElementById('clearPlayers');
-    if (clearPlayersButton) {
-        clearPlayersButton.addEventListener('click', function() {
-            const checkboxes = document.querySelectorAll('#playerList input[type="checkbox"]');
-            checkboxes.forEach(checkbox => checkbox.checked = false);
-            selectedPlayers.clear();
-            document.getElementById('startGame').disabled = true;
-        });
-    }
+document.getElementById('signInForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var playerName = document.getElementById('playerName').value;
+    addPlayerToFirebase(playerName);
+    playerAdded = true; // Set flag when player is added
 });
 
 function addPlayerToFirebase(name) {
     const playerRef = ref(database, 'players/');
     const newPlayerRef = push(playerRef);
-    set(newPlayerRef, { name: name })
-        .catch(error => {
-            console.error("Error adding player to Firebase:", error);
-        });
+    set(newPlayerRef, { name: name }).then(() => {
+        startListeningToPlayerChanges(); // Start listening to Firebase after player is added
+    });
 }
 
-
 function startListeningToPlayerChanges() {
-     console.log("Starting to listen to player changes");
-    onValue(ref(database, 'players/'), snapshot => {
+    onValue(ref(database, 'players/'), function(snapshot) {
         updatePlayerList(snapshot.val());
     });
 }
 
 
-
 function updatePlayerList(players) {
-     console.log("Players received:", players);
-    const playerList = document.getElementById('playerList');
+    var playerList = document.getElementById('playerList');
     playerList.innerHTML = '';
 
-    for (let key in players) {
+    for (var key in players) {
         if (players.hasOwnProperty(key)) {
-            const li = document.createElement('li');
-            const checkbox = document.createElement('input');
+            var li = document.createElement('li');
+            var checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.id = key;
             checkbox.addEventListener('change', handleCheckboxChange);
             li.appendChild(checkbox);
 
-            const label = document.createElement('label');
+            var label = document.createElement('label');
             label.htmlFor = key;
             label.textContent = players[key].name;
             li.appendChild(label);
@@ -87,8 +61,16 @@ function updatePlayerList(players) {
             playerList.appendChild(li);
         }
     }
+
+        if (playerAdded) {
+        showWaitingArea();
+    }
+    checkPlayerCount();
+    
 }
 
+
+var selectedPlayers = new Set();
 function handleCheckboxChange(event) {
     if (event.target.checked) {
         selectedPlayers.add(event.target.id);
@@ -104,7 +86,7 @@ function handleCheckboxChange(event) {
 }
 
 function checkPlayerCount() {
-    const players = document.getElementById('playerList').children.length;
+    var players = document.getElementById('playerList').children.length;
     if (players >= 4) {
         document.getElementById('enterGame').disabled = false;
     }
