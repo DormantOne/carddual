@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyDwsdgIZ1hpEmsQg7sZY0A2vEo71jyhwbY",
     authDomain: "carddual-b13da.firebaseapp.com",
@@ -16,24 +17,33 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-document.addEventListener('DOMContentLoaded', () => {
-    startListeningToPlayerChanges(); // Listen to player changes immediately after DOM is loaded
-
-    document.getElementById('signInForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        var playerName = document.getElementById('playerName').value;
-        addPlayerToFirebase(playerName);
-    });
-
-    document.getElementById('clearPlayers').addEventListener('click', function() {
-        var checkboxes = document.querySelectorAll('#playerList input[type="checkbox"]');
-        checkboxes.forEach(checkbox => checkbox.checked = false);
-        selectedPlayers.clear();
-        document.getElementById('startGame').disabled = true;
-    });
-});
-
 let selectedPlayers = new Set();
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Start listening to player changes right away
+    startListeningToPlayerChanges();
+
+    // Event listener for form submission
+    const signInForm = document.getElementById('signInForm');
+    if (signInForm) {
+        signInForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const playerName = document.getElementById('playerName').value;
+            addPlayerToFirebase(playerName);
+        });
+    }
+
+    // Event listener for clearing players
+    const clearPlayersButton = document.getElementById('clearPlayers');
+    if (clearPlayersButton) {
+        clearPlayersButton.addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('#playerList input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+            selectedPlayers.clear();
+            document.getElementById('startGame').disabled = true;
+        });
+    }
+});
 
 function addPlayerToFirebase(name) {
     const playerRef = ref(database, 'players/');
@@ -48,19 +58,19 @@ function startListeningToPlayerChanges() {
 }
 
 function updatePlayerList(players) {
-    var playerList = document.getElementById('playerList');
+    const playerList = document.getElementById('playerList');
     playerList.innerHTML = '';
 
-    for (var key in players) {
+    for (let key in players) {
         if (players.hasOwnProperty(key)) {
-            var li = document.createElement('li');
-            var checkbox = document.createElement('input');
+            const li = document.createElement('li');
+            const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.id = key;
             checkbox.addEventListener('change', handleCheckboxChange);
             li.appendChild(checkbox);
 
-            var label = document.createElement('label');
+            const label = document.createElement('label');
             label.htmlFor = key;
             label.textContent = players[key].name;
             li.appendChild(label);
@@ -85,7 +95,7 @@ function handleCheckboxChange(event) {
 }
 
 function checkPlayerCount() {
-    var players = document.getElementById('playerList').children.length;
+    const players = document.getElementById('playerList').children.length;
     if (players >= 4) {
         document.getElementById('enterGame').disabled = false;
     }
