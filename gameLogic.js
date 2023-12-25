@@ -55,3 +55,4 @@ function showWaitingArea() {
     document.getElementById('waitingArea').style.display = 'block';
     document.getElementById('signInArea').style.display = 'none';
 }
+
