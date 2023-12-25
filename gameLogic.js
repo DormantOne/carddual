@@ -16,38 +16,36 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-let playerAdded = false; // Flag to track if the current player has been added
+document.addEventListener('DOMContentLoaded', () => {
+    startListeningToPlayerChanges(); // Listen to player changes immediately after DOM is loaded
 
-document.getElementById('signInForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    var playerName = document.getElementById('playerName').value;
-    addPlayerToFirebase(playerName);
-    playerAdded = true; // Set flag when player is added
-});
-
-document.getElementById('clearPlayers').addEventListener('click', function() {
-    var checkboxes = document.querySelectorAll('#playerList input[type="checkbox"]');
-    checkboxes.forEach(function(checkbox) {
-        checkbox.checked = false;
+    document.getElementById('signInForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        var playerName = document.getElementById('playerName').value;
+        addPlayerToFirebase(playerName);
     });
-    selectedPlayers.clear(); // Assuming you have a Set or similar structure to track selected players
-    document.getElementById('startGame').disabled = true; // Disable 'Start Game' button
+
+    document.getElementById('clearPlayers').addEventListener('click', function() {
+        var checkboxes = document.querySelectorAll('#playerList input[type="checkbox"]');
+        checkboxes.forEach(checkbox => checkbox.checked = false);
+        selectedPlayers.clear();
+        document.getElementById('startGame').disabled = true;
+    });
 });
+
+let selectedPlayers = new Set();
 
 function addPlayerToFirebase(name) {
     const playerRef = ref(database, 'players/');
     const newPlayerRef = push(playerRef);
-    set(newPlayerRef, { name: name }).then(() => {
-        startListeningToPlayerChanges(); // Start listening to Firebase after player is added
-    });
+    set(newPlayerRef, { name: name });
 }
 
 function startListeningToPlayerChanges() {
-    onValue(ref(database, 'players/'), function(snapshot) {
+    onValue(ref(database, 'players/'), snapshot => {
         updatePlayerList(snapshot.val());
     });
 }
-
 
 function updatePlayerList(players) {
     var playerList = document.getElementById('playerList');
@@ -70,16 +68,8 @@ function updatePlayerList(players) {
             playerList.appendChild(li);
         }
     }
-
-        if (playerAdded) {
-        showWaitingArea();
-    }
-    checkPlayerCount();
-    
 }
 
-
-var selectedPlayers = new Set();
 function handleCheckboxChange(event) {
     if (event.target.checked) {
         selectedPlayers.add(event.target.id);
