@@ -60,6 +60,7 @@ function startListeningToPlayerChanges() {
 }
 
 function updatePlayerList(players) {
+     console.log("Players received:", players);
     const playerList = document.getElementById('playerList');
     playerList.innerHTML = '';
 
