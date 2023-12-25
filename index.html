@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Card Game Sign-In</title>
+    <!-- Add CSS here for styling -->
+</head>
+<body>
+    <div id="signInArea">
+        <h2>Let's Play a Card Game - Enter Your Name</h2>
+        <form id="signInForm">
+            <input type="text" id="playerName" placeholder="Your name" required>
+            <button type="submit">Sign In</button>
+        </form>
+    </div>
+
+    <div id="waitingArea" style="display: none;">
+        <h3>Players Waiting:</h3>
+        <ul id="playerList">
+            <!-- Player names will be listed here -->
+        </ul>
+        <button id="enterGame" disabled>Enter Game</button>
+    </div>
+
+    <script src="gameLogic.js"></script>
+</body>
+</html>
