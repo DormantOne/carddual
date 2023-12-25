@@ -1,8 +1,20 @@
-// Initialize Firebase (use your own config here)
-firebase.initializeApp(firebaseConfig);
+// Import Firebase modules
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// Reference to your database
-var database = firebase.database();
+const firebaseConfig = {
+    apiKey: "AIzaSyDwsdgIZ1hpEmsQg7sZY0A2vEo71jyhwbY",
+    authDomain: "carddual-b13da.firebaseapp.com",
+    projectId: "carddual-b13da",
+    storageBucket: "carddual-b13da.appspot.com",
+    messagingSenderId: "280023498180",
+    appId: "1:280023498180:web:940612b32d85e5a08c7891",
+    measurementId: "G-KF6XZ6F2MS"
+  };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
 document.getElementById('signInForm').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -12,17 +24,17 @@ document.getElementById('signInForm').addEventListener('submit', function(event)
 
 function addPlayerToFirebase(name) {
     // Write to Firebase
-    var playerRef = database.ref('players/');
-    var newPlayerRef = playerRef.push();
-    newPlayerRef.set({ name: name });
-
-    // No need to call showWaitingArea here, it will be handled in updatePlayerList
+    const playerRef = ref(database, 'players/');
+    const newPlayerRef = push(playerRef);
+    set(newPlayerRef, { name: name });
 }
 
 // Listen for changes in the players list
-database.ref('players/').on('value', function(snapshot) {
+onValue(ref(database, 'players/'), function(snapshot) {
     updatePlayerList(snapshot.val());
 });
+
+
 
 function updatePlayerList(players) {
     // Clear existing list
