@@ -100,12 +100,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearPlayersButton = document.getElementById('clearPlayers');
     if (clearPlayersButton) {
         clearPlayersButton.addEventListener('click', function() {
+            const playersRef = ref(database, 'players/');
+            remove(playersRef); // Remove all players from Firebase
+    
+            // Clear the player list in the UI
             var playerList = document.getElementById('playerList');
-            playerList.innerHTML = ''; // Clear the player list
-            selectedPlayers.clear();
+            playerList.innerHTML = '';
             document.getElementById('startGame').disabled = true;
         });
     }
-
     startListeningToPlayerChanges();
 });
+
+
+
+
