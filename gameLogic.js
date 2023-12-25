@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyDwsdgIZ1hpEmsQg7sZY0A2vEo71jyhwbY",
     authDomain: "carddual-b13da.firebaseapp.com",
@@ -17,28 +18,19 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 let playerAdded = false; // Flag to track if the current player has been added
-
-document.getElementById('signInForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    var playerName = document.getElementById('playerName').value;
-    addPlayerToFirebase(playerName);
-    playerAdded = true; // Set flag when player is added
-});
+let selectedPlayers = new Set();
 
 function addPlayerToFirebase(name) {
     const playerRef = ref(database, 'players/');
     const newPlayerRef = push(playerRef);
-    set(newPlayerRef, { name: name }).then(() => {
-        startListeningToPlayerChanges(); // Start listening to Firebase after player is added
-    });
+    set(newPlayerRef, { name: name });
 }
 
 function startListeningToPlayerChanges() {
-    onValue(ref(database, 'players/'), function(snapshot) {
+    onValue(ref(database, 'players/'), snapshot => {
         updatePlayerList(snapshot.val());
     });
 }
-
 
 function updatePlayerList(players) {
     var playerList = document.getElementById('playerList');
@@ -61,16 +53,12 @@ function updatePlayerList(players) {
             playerList.appendChild(li);
         }
     }
-
-        if (playerAdded) {
+    if (playerAdded) {
         showWaitingArea();
     }
     checkPlayerCount();
-    
 }
 
-
-var selectedPlayers = new Set();
 function handleCheckboxChange(event) {
     if (event.target.checked) {
         selectedPlayers.add(event.target.id);
@@ -96,3 +84,28 @@ function showWaitingArea() {
     document.getElementById('waitingArea').style.display = 'block';
     document.getElementById('signInArea').style.display = 'none';
 }
+
+// Set up event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    const signInForm = document.getElementById('signInForm');
+    if (signInForm) {
+        signInForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            var playerName = document.getElementById('playerName').value;
+            addPlayerToFirebase(playerName);
+            playerAdded = true;
+        });
+    }
+
+    const clearPlayersButton = document.getElementById('clearPlayers');
+    if (clearPlayersButton) {
+        clearPlayersButton.addEventListener('click', function() {
+            var playerList = document.getElementById('playerList');
+            playerList.innerHTML = ''; // Clear the player list
+            selectedPlayers.clear();
+            document.getElementById('startGame').disabled = true;
+        });
+    }
+
+    startListeningToPlayerChanges();
+});
