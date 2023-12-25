@@ -49,8 +49,12 @@ document.addEventListener('DOMContentLoaded', () => {
 function addPlayerToFirebase(name) {
     const playerRef = ref(database, 'players/');
     const newPlayerRef = push(playerRef);
-    set(newPlayerRef, { name: name });
+    set(newPlayerRef, { name: name })
+        .catch(error => {
+            console.error("Error adding player to Firebase:", error);
+        });
 }
+
 
 function startListeningToPlayerChanges() {
      console.log("Starting to listen to player changes");
@@ -58,6 +62,8 @@ function startListeningToPlayerChanges() {
         updatePlayerList(snapshot.val());
     });
 }
+
+
 
 function updatePlayerList(players) {
      console.log("Players received:", players);
