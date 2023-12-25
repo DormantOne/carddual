@@ -25,6 +25,15 @@ document.getElementById('signInForm').addEventListener('submit', function(event)
     playerAdded = true; // Set flag when player is added
 });
 
+document.getElementById('clearPlayers').addEventListener('click', function() {
+    var checkboxes = document.querySelectorAll('#playerList input[type="checkbox"]');
+    checkboxes.forEach(function(checkbox) {
+        checkbox.checked = false;
+    });
+    selectedPlayers.clear(); // Assuming you have a Set or similar structure to track selected players
+    document.getElementById('startGame').disabled = true; // Disable 'Start Game' button
+});
+
 function addPlayerToFirebase(name) {
     const playerRef = ref(database, 'players/');
     const newPlayerRef = push(playerRef);
