@@ -21,6 +21,7 @@ let selectedPlayers = new Set();
 
 document.addEventListener('DOMContentLoaded', () => {
     // Start listening to player changes right away
+        console.log("DOM fully loaded and parsed");
     startListeningToPlayerChanges();
 
     // Event listener for form submission
@@ -52,6 +53,7 @@ function addPlayerToFirebase(name) {
 }
 
 function startListeningToPlayerChanges() {
+     console.log("Starting to listen to player changes");
     onValue(ref(database, 'players/'), snapshot => {
         updatePlayerList(snapshot.val());
     });
