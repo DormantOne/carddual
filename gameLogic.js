@@ -49,6 +49,46 @@ function clearPlayersFromFirebase() {
     remove(playersRef); // Remove all players from Firebase
 }
 
+// ... [Previous code remains unchanged]
+
+function updatePlayerList(players) {
+    const playerList = document.getElementById('playerList');
+    playerList.innerHTML = ''; // Clear existing list
+
+    for (const key in players) {
+        if (players.hasOwnProperty(key)) {
+            const listItem = document.createElement('li');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = key;
+            checkbox.addEventListener('change', handleCheckboxChange);
+
+            listItem.appendChild(checkbox);
+            listItem.appendChild(document.createTextNode(players[key].name));
+            playerList.appendChild(listItem);
+        }
+    }
+}
+
+let selectedPlayers = new Set(); // To keep track of selected players
+
+function handleCheckboxChange(event) {
+    const playerId = event.target.id;
+    if (event.target.checked) {
+        selectedPlayers.add(playerId);
+        if (selectedPlayers.size > 4) {
+            event.target.checked = false;
+            selectedPlayers.delete(playerId);
+            alert("Only 4 players can be selected!");
+        }
+    } else {
+        selectedPlayers.delete(playerId);
+    }
+    document.getElementById('enterGame').disabled = selectedPlayers.size !== 4;
+}
+
+// ... rest of the script remains the same
+
 // Set up event listeners
 document.addEventListener('DOMContentLoaded', () => {
     startListeningToPlayerChanges();
