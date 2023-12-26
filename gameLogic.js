@@ -99,4 +99,9 @@ clearPlayersButton.addEventListener('click', () => {
     document.getElementById('enterGame').disabled = true; // Optionally disable the 'Enter Game' button
 });
 
+const enterGameButton = document.getElementById('enterGame');
+enterGameButton.addEventListener('click', () => {
+    window.location.href = 'game.html'; // Redirect to the game page
+});
+
 });
