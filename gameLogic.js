@@ -77,11 +77,15 @@ function handleCheckboxChange(event) {
 }
 
 function checkPlayerCount() {
-    var players = document.getElementById('playerList').children.length;
-    if (players >= 4) {
-        document.getElementById('enterGame').disabled = false;
+    var enterGameButton = document.getElementById('enterGame');
+    if (enterGameButton) {
+        var players = document.getElementById('playerList').children.length;
+        enterGameButton.disabled = players < 4;
+    } else {
+        console.error("Enter Game button not found!");
     }
 }
+
 
 function showWaitingArea() {
     document.getElementById('waitingArea').style.display = 'block';
