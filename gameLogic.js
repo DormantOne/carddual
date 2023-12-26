@@ -44,6 +44,11 @@ function updatePlayerList(players) {
     }
 }
 
+function clearPlayersFromFirebase() {
+    const playersRef = ref(database, 'players/');
+    remove(playersRef); // Remove all players from Firebase
+}
+
 // Set up event listeners
 document.addEventListener('DOMContentLoaded', () => {
     startListeningToPlayerChanges();
@@ -56,5 +61,10 @@ document.addEventListener('DOMContentLoaded', () => {
             addPlayerToFirebase(playerName);
             document.getElementById('playerName').value = ''; // Clear the input field
         }
+    });
+
+    const clearPlayersButton = document.getElementById('clearPlayers');
+    clearPlayersButton.addEventListener('click', () => {
+        clearPlayersFromFirebase();
     });
 });
