@@ -37,7 +37,7 @@ function startListeningToPlayerChanges() {
 
 function updatePlayerList(players) {
     var playerList = document.getElementById('playerList');
-    playerList.innerHTML = '';
+    playerList.innerHTML = '';  // Clear the list before repopulating
 
     for (var key in players) {
         if (players.hasOwnProperty(key)) {
@@ -56,11 +56,8 @@ function updatePlayerList(players) {
             playerList.appendChild(li);
         }
     }
-    if (playerAdded) {
-        showWaitingArea();
-    }
-    checkPlayerCount();
 }
+
 
 function handleCheckboxChange(event) {
     if (event.target.checked) {
