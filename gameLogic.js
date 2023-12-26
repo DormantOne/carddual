@@ -31,18 +31,7 @@ function startListeningToPlayerChanges() {
     });
 }
 
-function updatePlayerList(players) {
-    const playerList = document.getElementById('playerList');
-    playerList.innerHTML = ''; // Clear existing list
 
-    for (const key in players) {
-        if (players.hasOwnProperty(key)) {
-            const listItem = document.createElement('li');
-            listItem.textContent = players[key].name;
-            playerList.appendChild(listItem);
-        }
-    }
-}
 
 function clearPlayersFromFirebase() {
     const playersRef = ref(database, 'players/');
