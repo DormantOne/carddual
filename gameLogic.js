@@ -92,8 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const clearPlayersButton = document.getElementById('clearPlayers');
-    clearPlayersButton.addEventListener('click', () => {
-        clearPlayersFromFirebase();
-    });
+const clearPlayersButton = document.getElementById('clearPlayers');
+clearPlayersButton.addEventListener('click', () => {
+    clearPlayersFromFirebase();
+    selectedPlayers.clear(); // Add this line to clear the selected players set
+    document.getElementById('enterGame').disabled = true; // Optionally disable the 'Enter Game' button
+});
+
 });
