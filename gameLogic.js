@@ -98,16 +98,19 @@ document.addEventListener('DOMContentLoaded', () => {
        // Ensure startListeningToPlayerChanges is called only once
     startListeningToPlayerChanges();
 
+
+
     const signInForm = document.getElementById('signInForm');
     if (signInForm) {
         signInForm.addEventListener('submit', function(event) {
             event.preventDefault();
             var playerName = document.getElementById('playerName').value;
             addPlayerToFirebase(playerName);
-            playerAdded = true;
+            // Consider clearing the input field here
+            document.getElementById('playerName').value = '';
         });
     }
-    
+
     const clearPlayersButton = document.getElementById('clearPlayers');
     if (clearPlayersButton) {
         clearPlayersButton.addEventListener('click', function() {
