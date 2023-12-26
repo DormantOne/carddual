@@ -34,10 +34,16 @@ function startListeningToPlayerChanges() {
 }
 
 
-
 function updatePlayerList(players) {
+    console.log("Called updatePlayerList with:", players); // Debugging line
+
     var playerList = document.getElementById('playerList');
-    playerList.innerHTML = '';  // Clear the list before repopulating
+    if (!playerList) {
+        console.error("Player list element not found");
+        return;
+    }
+
+    playerList.innerHTML = ''; // Clear existing list
 
     for (var key in players) {
         if (players.hasOwnProperty(key)) {
@@ -57,6 +63,7 @@ function updatePlayerList(players) {
         }
     }
 }
+
 
 
 function handleCheckboxChange(event) {
