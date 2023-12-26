@@ -73,7 +73,8 @@ function handleCheckboxChange(event) {
     } else {
         selectedPlayers.delete(event.target.id);
     }
-    document.getElementById('enter').disabled = selectedPlayers.size !== 4;
+   // In handleCheckboxChange function
+   document.getElementById('enterGame').disabled = selectedPlayers.size !== 4;
 }
 
 function checkPlayerCount() {
@@ -85,6 +86,9 @@ function checkPlayerCount() {
         console.error("Enter Game button not found!");
     }
 }
+
+
+
 
 
 function showWaitingArea() {
@@ -120,7 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Clear the player list in the UI
             var playerList = document.getElementById('playerList');
             playerList.innerHTML = '';
-            document.getElementById('start').disabled = true;
+            // In clearPlayersButton event listener
+             document.getElementById('enterGame').disabled = true;
+            
         });
     }
   
