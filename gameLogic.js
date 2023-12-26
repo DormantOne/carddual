@@ -73,7 +73,7 @@ function handleCheckboxChange(event) {
     } else {
         selectedPlayers.delete(event.target.id);
     }
-    document.getElementById('startGame').disabled = selectedPlayers.size !== 4;
+    document.getElementById('enter').disabled = selectedPlayers.size !== 4;
 }
 
 function checkPlayerCount() {
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Clear the player list in the UI
             var playerList = document.getElementById('playerList');
             playerList.innerHTML = '';
-            document.getElementById('startGame').disabled = true;
+            document.getElementById('start').disabled = true;
         });
     }
   
