@@ -106,7 +106,5 @@ function startGame() {
     updateGameResultsInFirebase(winner);
 }
 
-    updateGameResultsInFirebase(winner);
-}
 
 document.getElementById('startGame').addEventListener('click', startGame);
