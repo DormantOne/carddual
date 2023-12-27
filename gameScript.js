@@ -21,16 +21,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function fetchPlayerNames() {
-    const playerNamesRef = ref(database, 'path/to/playerNames'); // Adjust the path as per your Firebase data structure
+    const playerNamesRef = ref(database, 'players/name'); // Adjusted path to match Firebase structure
     onValue(playerNamesRef, (snapshot) => {
         const players = snapshot.val();
+        console.log("Fetched players:", players); // Debugging line
         if (players) {
-            displayPlayerTeamChoices(Object.values(players)); // Assuming players are stored as an object
+            // Assuming players are stored as an object, and we want to get their values
+            displayPlayerTeamChoices(Object.values(players));
         }
     }, (error) => {
         console.error("Error fetching player names: ", error);
     });
 }
+
 
 function displayPlayerTeamChoices(players) {
     const playerTeamChoices = document.getElementById('playerTeamChoices');
