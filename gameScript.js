@@ -19,9 +19,21 @@ const database = getDatabase(app);
 
 document.addEventListener('DOMContentLoaded', () => {
     startListeningToPlayerChanges();
+    fetchAndDisplayTeamAssignments();
     document.getElementById('submitUpdate').addEventListener('click', submitTeamUpdates);
     document.getElementById('finalizeTeams').addEventListener('click', finalizeSelections);
 });
+
+function fetchAndDisplayTeamAssignments() {
+    onValue(ref(database, 'teamAssignments/'), (snapshot) => {
+        const teamAssignments = snapshot.val();
+        if (teamAssignments) {
+            displayTeamAssignments(teamAssignments);
+        }
+    }, (error) => {
+        console.error("Error fetching team assignments: ", error);
+    });
+}
 
 function startListeningToPlayerChanges() {
     onValue(ref(database, 'players/'), (snapshot) => {
@@ -64,8 +76,15 @@ function submitTeamUpdates() {
     });
 
     displayTeamAssignments(playerTeamAssignments);
+
+    // Save the team assignments to Firebase
+    set(ref(database, 'teamAssignments/'), playerTeamAssignments)
+        .then(() => console.log("Team assignments saved to Firebase."))
+        .catch((error) => console.error("Error saving team assignments: ", error));
+
     document.getElementById('finalizeTeams').disabled = false;
 }
+
 
 function displayTeamAssignments(assignments) {
     const displayDiv = document.getElementById('teamAssignmentsDisplay');
