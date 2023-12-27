@@ -5,43 +5,25 @@
     <!-- Add CSS here for styling -->
 </head>
 <body>
-    <!-- Player Setup Area -->
     <div id="playerSetupArea">
-        <h2>Enter your name and choose your team</h2>
-        <form id="playerSetupForm">
-            <input type="text" id="playerName" placeholder="Your name" required>
-            <select id="teamChoice">
-                <option value="team1">Team 1</option>
-                <option value="team2">Team 2</option>
-            </select>
-            <button type="submit">Join Game</button>
-        </form>
+        <!-- Player setup form -->
     </div>
 
-    <!-- Team Selection Area -->
     <div id="teamSelectionArea" style="display: none;">
         <h3>Select Teams</h3>
+        <div id="teamCount">
+            <p>Team 1 Count: <span id="team1Count">0</span></p>
+            <p>Team 2 Count: <span id="team2Count">0</span></p>
+        </div>
         <div id="playerTeamChoices">
-            <!-- Player names and dropdowns will be populated here -->
+            <!-- Player names and team choices will be populated here -->
         </div>
         <button id="finalizeTeamSelection">Finalize Teams</button>
+        <div id="validationMessage"></div> <!-- Display validation messages here -->
     </div>
 
-    <!-- Game Area -->
     <div id="gameArea" style="display: none;">
-        <h2>Game Area</h2>
-        <div id="team1" class="team">
-            <h3>Team 1</h3>
-            <div id="player1" class="player">Player 1 Cards: </div>
-            <div id="player2" class="player">Player 2 Cards: </div>
-        </div>
-        <div id="team2" class="team">
-            <h3>Team 2</h3>
-            <div id="player3" class="player">Player 3 Cards: </div>
-            <div id="player4" class="player">Player 4 Cards: </div>
-        </div>
-        <button id="startGame">Start Game</button>
-        <div id="gameResults"></div>
+        <!-- Game area content -->
     </div>
 
     <script type="module" src="gameScript.js"></script>
