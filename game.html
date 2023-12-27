@@ -1,7 +1,3 @@
-
-
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,33 +5,40 @@
     <!-- Add CSS here for styling -->
 </head>
 <body>
-    <!-- Add this at the beginning of the <body> tag in game.html -->
-<div id="playerSetupArea">
-    <h2>Enter your name and choose your team</h2>
-    <form id="playerSetupForm">
-        <input type="text" id="playerName" placeholder="Your name" required>
-        <select id="teamChoice">
-            <option value="team1">Team 1</option>
-            <option value="team2">Team 2</option>
-        </select>
-        <button type="submit">Join Game</button>
-    </form>
-</div>
+    <!-- Player Setup Area -->
+    <div id="playerSetupArea">
+        <h2>Enter your name and choose your team</h2>
+        <form id="playerSetupForm">
+            <input type="text" id="playerName" placeholder="Your name" required>
+            <select id="teamChoice">
+                <option value="team1">Team 1</option>
+                <option value="team2">Team 2</option>
+            </select>
+            <button type="submit">Join Game</button>
+        </form>
+    </div>
 
-<div id="gameArea" style="display: none;">
-    <!-- Existing game area content -->
-</div>
-    <div id="gameArea">
+    <!-- Team Selection Area -->
+    <div id="teamSelectionArea" style="display: none;">
+        <h3>Select Teams</h3>
+        <div id="playerTeamChoices">
+            <!-- Player names and dropdowns will be populated here -->
+        </div>
+        <button id="finalizeTeamSelection">Finalize Teams</button>
+    </div>
+
+    <!-- Game Area -->
+    <div id="gameArea" style="display: none;">
         <h2>Game Area</h2>
         <div id="team1" class="team">
             <h3>Team 1</h3>
-            <div id="player1" class="player"></div>
-            <div id="player2" class="player"></div>
+            <div id="player1" class="player">Player 1 Cards: </div>
+            <div id="player2" class="player">Player 2 Cards: </div>
         </div>
         <div id="team2" class="team">
             <h3>Team 2</h3>
-            <div id="player3" class="player"></div>
-            <div id="player4" class="player"></div>
+            <div id="player3" class="player">Player 3 Cards: </div>
+            <div id="player4" class="player">Player 4 Cards: </div>
         </div>
         <button id="startGame">Start Game</button>
         <div id="gameResults"></div>
