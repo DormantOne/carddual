@@ -17,37 +17,35 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetchPlayerNames();
+    startListeningToPlayerChanges();
 });
 
-function fetchPlayerNames() {
-    const playerNamesRef = ref(database, 'players/name'); // Adjusted path to match Firebase structure
-    onValue(playerNamesRef, (snapshot) => {
+function startListeningToPlayerChanges() {
+    onValue(ref(database, 'players/'), (snapshot) => {
         const players = snapshot.val();
-        console.log("Fetched players:", players); // Debugging line
         if (players) {
-            // Assuming players are stored as an object, and we want to get their values
-            displayPlayerTeamChoices(Object.values(players));
+            updatePlayerList(players);
         }
     }, (error) => {
         console.error("Error fetching player names: ", error);
     });
 }
 
-
-function displayPlayerTeamChoices(players) {
+function updatePlayerList(players) {
     const playerTeamChoices = document.getElementById('playerTeamChoices');
-    playerTeamChoices.innerHTML = '';
+    playerTeamChoices.innerHTML = ''; // Clear existing list
 
-    players.forEach(player => {
-        let playerRow = document.createElement('div');
-        playerRow.innerHTML = `
-            <span>${player}</span>
-            <select>
-                <option value="teamA">Team A</option>
-                <option value="teamB">Team B</option>
-            </select>
-        `;
-        playerTeamChoices.appendChild(playerRow);
-    });
+    for (const key in players) {
+        if (players.hasOwnProperty(key)) {
+            const playerRow = document.createElement('div');
+            playerRow.innerHTML = `
+                <span>${players[key].name}</span>
+                <select>
+                    <option value="teamA">Team A</option>
+                    <option value="teamB">Team B</option>
+                </select>
+            `;
+            playerTeamChoices.appendChild(playerRow);
+        }
+    }
 }
