@@ -16,21 +16,22 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-const cards = ['Robot', 'Tiger', 'Mouse', 'Quark'];
-const cardValues = { 'Robot': 4, 'Tiger': 3, 'Mouse': 2, 'Quark': 1 };
-
 document.addEventListener('DOMContentLoaded', () => {
     let selectedPlayers = JSON.parse(localStorage.getItem('selectedPlayers') || '[]');
     displayPlayerTeamChoices(selectedPlayers);
+    listenToTeamSelectionChanges();
 });
 
 function displayPlayerTeamChoices(players) {
     const playerTeamChoices = document.getElementById('playerTeamChoices');
+    playerTeamChoices.innerHTML = ''; // Clear existing content
+
     players.forEach(player => {
         let playerRow = document.createElement('div');
         playerRow.innerHTML = `
             <span>${player}</span>
             <select class="teamSelect" data-player="${player}">
+                <option value="">Select Team</option>
                 <option value="team1">Team 1</option>
                 <option value="team2">Team 2</option>
             </select>
@@ -48,63 +49,24 @@ document.getElementById('finalizeTeamSelection').addEventListener('click', () =>
     });
 
     // Save the team selections to Firebase
-    const teamSelectionRef = ref(database, 'teamSelections/');
-    set(teamSelectionRef, playerTeams);
-
-    console.log("Teams have been finalized.");
-    startGame(); // Optionally start the game
+    set(ref(database, 'teamSelections/'), playerTeams);
 });
 
-function pickCardsForTeam() {
-    return [
-        cards[Math.floor(Math.random() * cards.length)], 
-        cards[Math.floor(Math.random() * cards.length)]
-    ];
+function listenToTeamSelectionChanges() {
+    onValue(ref(database, 'teamSelections/'), (snapshot) => {
+        const selections = snapshot.val();
+        if (selections) {
+            updateUIWithTeamSelections(selections);
+        }
+    });
 }
 
-function displayTeamCards(teamCards, teamId) {
-    const teamElement = document.getElementById(teamId);
-    teamElement.innerHTML = `Cards: ${teamCards.join(', ')}`;
+function updateUIWithTeamSelections(selections) {
+    document.querySelectorAll('.teamSelect').forEach(select => {
+        const playerName = select.getAttribute('data-player');
+        if (selections[playerName]) {
+            select.value = selections[playerName];
+        }
+    });
 }
 
-function calculateTeamScore(teamCards, opposingTeamCards) {
-    let score = teamCards.reduce((total, card) => total + cardValues[card], 0);
-    if (teamCards.includes('Quark') && opposingTeamCards.includes('Robot')) {
-        score -= cardValues['Robot'] - 1; 
-    }
-    return score;
-}
-
-function determineWinner(team1Cards, team2Cards) {
-    let team1Score = calculateTeamScore(team1Cards, team2Cards);
-    let team2Score = calculateTeamScore(team2Cards, team1Cards);
-
-    let result;
-    if (team1Score === team2Score) {
-        result = team1Score < team2Score ? 'Team 1 Wins with Lower Score' : 'Team 2 Wins with Lower Score';
-    } else {
-        result = team1Score > team2Score ? 'Team 1 Wins' : 'Team 2 Wins';
-    }
-
-    return result;
-}
-
-function updateGameResultsInFirebase(winner) {
-    const gameResultsRef = ref(database, 'gameResults/');
-    set(gameResultsRef, { winner: winner });
-}
-
-function startGame() {
-    let team1Cards = pickCardsForTeam();
-    let team2Cards = pickCardsForTeam();
-
-    displayTeamCards(team1Cards, 'team1');
-    displayTeamCards(team2Cards, 'team2');
-
-    let winner = determineWinner(team1Cards, team2Cards);
-    document.getElementById('gameResults').textContent = winner;
-    updateGameResultsInFirebase(winner);
-}
-
-
-document.getElementById('startGame').addEventListener('click', startGame);
