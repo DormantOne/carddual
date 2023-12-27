@@ -98,13 +98,14 @@ function listenToTeamSelectionChanges() {
                 updateUIWithTeamSelections(selections);
                 updateTeamCount(); // Update team count when Firebase data changes
             }
-        }).catch((error) => {
+        }, (error) => {
             console.error("Error listening to team selections: ", error);
         });
     } catch (error) {
         console.error("Error in listenToTeamSelectionChanges function: ", error);
     }
 }
+
 
 function updateUIWithTeamSelections(selections) {
     try {
