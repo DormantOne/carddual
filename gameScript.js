@@ -17,77 +17,104 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 document.addEventListener('DOMContentLoaded', () => {
-    let selectedPlayers = JSON.parse(localStorage.getItem('selectedPlayers') || '[]');
-    displayPlayerTeamChoices(selectedPlayers);
-    listenToTeamSelectionChanges();
+    try {
+        let selectedPlayers = JSON.parse(localStorage.getItem('selectedPlayers') || '[]');
+        displayPlayerTeamChoices(selectedPlayers);
+        listenToTeamSelectionChanges();
+    } catch (error) {
+        console.error("Error during DOMContentLoaded: ", error);
+    }
 });
 
 function displayPlayerTeamChoices(players) {
-    const playerTeamChoices = document.getElementById('playerTeamChoices');
-    playerTeamChoices.innerHTML = '';
+    try {
+        const playerTeamChoices = document.getElementById('playerTeamChoices');
+        playerTeamChoices.innerHTML = '';
 
-    players.forEach(player => {
-        let playerRow = document.createElement('div');
-        playerRow.innerHTML = `
-            <span>${player}</span>
-            <select class="teamSelect" data-player="${player}" onchange="updateTeamCount()">
-                <option value="">Select Team</option>
-                <option value="team1">Team 1</option>
-                <option value="team2">Team 2</option>
-            </select>
-        `;
-        playerTeamChoices.appendChild(playerRow);
-    });
+        players.forEach(player => {
+            let playerRow = document.createElement('div');
+            playerRow.innerHTML = `
+                <span>${player}</span>
+                <select class="teamSelect" data-player="${player}" onchange="updateTeamCount()">
+                    <option value="">Select Team</option>
+                    <option value="team1">Team 1</option>
+                    <option value="team2">Team 2</option>
+                </select>
+            `;
+            playerTeamChoices.appendChild(playerRow);
+        });
+    } catch (error) {
+        console.error("Error displaying player team choices: ", error);
+    }
 }
 
 function updateTeamCount() {
-    let teamCounts = { team1: 0, team2: 0 };
-    document.querySelectorAll('.teamSelect').forEach(select => {
-        if (select.value) {
-            teamCounts[select.value]++;
-        }
-    });
-    document.getElementById('team1Count').innerText = teamCounts.team1;
-    document.getElementById('team2Count').innerText = teamCounts.team2;
+    try {
+        let teamCounts = { team1: 0, team2: 0 };
+        document.querySelectorAll('.teamSelect').forEach(select => {
+            if (select.value) {
+                teamCounts[select.value]++;
+            }
+        });
+        document.getElementById('team1Count').innerText = teamCounts.team1;
+        document.getElementById('team2Count').innerText = teamCounts.team2;
+    } catch (error) {
+        console.error("Error updating team counts: ", error);
+    }
 }
 
 document.getElementById('finalizeTeamSelection').addEventListener('click', () => {
-    let playerTeams = {};
-    let teamCounts = { team1: 0, team2: 0 };
+    try {
+        let playerTeams = {};
+        let teamCounts = { team1: 0, team2: 0 };
 
-    document.querySelectorAll('.teamSelect').forEach(select => {
-        let playerName = select.getAttribute('data-player');
-        let team = select.value;
-        if (team) {
-            playerTeams[playerName] = team;
-            teamCounts[team]++;
+        document.querySelectorAll('.teamSelect').forEach(select => {
+            let playerName = select.getAttribute('data-player');
+            let team = select.value;
+            if (team) {
+                playerTeams[playerName] = team;
+                teamCounts[team]++;
+            }
+        });
+
+        if (Object.values(teamCounts).some(count => count === 0)) {
+            alert('Each team must have at least one player.');
+            return;
         }
-    });
 
-    if (Object.values(teamCounts).some(count => count === 0)) {
-        alert('Each team must have at least one player.');
-        return;
+        set(ref(database, 'teamSelections/'), playerTeams)
+            .then(() => console.log("Teams have been finalized."))
+            .catch((error) => console.error("Error finalizing team selection: ", error));
+    } catch (error) {
+        console.error("Error in finalizeTeamSelection event listener: ", error);
     }
-
-    set(ref(database, 'teamSelections/'), playerTeams);
-    console.log("Teams have been finalized.");
 });
 
 function listenToTeamSelectionChanges() {
-    onValue(ref(database, 'teamSelections/'), (snapshot) => {
-        const selections = snapshot.val();
-        if (selections) {
-            updateUIWithTeamSelections(selections);
-            updateTeamCount(); // Update team count when Firebase data changes
-        }
-    });
+    try {
+        onValue(ref(database, 'teamSelections/'), (snapshot) => {
+            const selections = snapshot.val();
+            if (selections) {
+                updateUIWithTeamSelections(selections);
+                updateTeamCount(); // Update team count when Firebase data changes
+            }
+        }).catch((error) => {
+            console.error("Error listening to team selections: ", error);
+        });
+    } catch (error) {
+        console.error("Error in listenToTeamSelectionChanges function: ", error);
+    }
 }
 
 function updateUIWithTeamSelections(selections) {
-    document.querySelectorAll('.teamSelect').forEach(select => {
-        const playerName = select.getAttribute('data-player');
-        if (selections[playerName]) {
-            select.value = selections[playerName];
-        }
-    });
+    try {
+        document.querySelectorAll('.teamSelect').forEach(select => {
+            const playerName = select.getAttribute('data-player');
+            if (selections[playerName]) {
+                select.value = selections[playerName];
+            }
+        });
+    } catch (error) {
+        console.error("Error updating UI with team selections: ", error);
+    }
 }
