@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // Firebase configuration (use the same configuration as your sign-in page)
 const firebaseConfig = {
@@ -19,8 +19,43 @@ const database = getDatabase(app);
 const cards = ['Robot', 'Tiger', 'Mouse', 'Quark'];
 const cardValues = { 'Robot': 4, 'Tiger': 3, 'Mouse': 2, 'Quark': 1 };
 
+document.addEventListener('DOMContentLoaded', () => {
+    let selectedPlayers = JSON.parse(localStorage.getItem('selectedPlayers') || '[]');
+    displayPlayerTeamChoices(selectedPlayers);
+});
+
+function displayPlayerTeamChoices(players) {
+    const playerTeamChoices = document.getElementById('playerTeamChoices');
+    players.forEach(player => {
+        let playerRow = document.createElement('div');
+        playerRow.innerHTML = `
+            <span>${player}</span>
+            <select class="teamSelect" data-player="${player}">
+                <option value="team1">Team 1</option>
+                <option value="team2">Team 2</option>
+            </select>
+        `;
+        playerTeamChoices.appendChild(playerRow);
+    });
+}
+
+document.getElementById('finalizeTeamSelection').addEventListener('click', () => {
+    let playerTeams = {};
+    document.querySelectorAll('.teamSelect').forEach(select => {
+        let playerName = select.getAttribute('data-player');
+        let team = select.value;
+        playerTeams[playerName] = team;
+    });
+
+    // Save the team selections to Firebase
+    const teamSelectionRef = ref(database, 'teamSelections/');
+    set(teamSelectionRef, playerTeams);
+
+    console.log("Teams have been finalized.");
+    startGame(); // Optionally start the game
+});
+
 function pickCardsForTeam() {
-    // Simulate random picking of two cards for each player in a team
     return [
         cards[Math.floor(Math.random() * cards.length)], 
         cards[Math.floor(Math.random() * cards.length)]
@@ -34,12 +69,9 @@ function displayTeamCards(teamCards, teamId) {
 
 function calculateTeamScore(teamCards, opposingTeamCards) {
     let score = teamCards.reduce((total, card) => total + cardValues[card], 0);
-
-    // Apply the Quark rule
     if (teamCards.includes('Quark') && opposingTeamCards.includes('Robot')) {
-        score -= cardValues['Robot'] - 1; // Reduce the Robot's value to 1
+        score -= cardValues['Robot'] - 1; 
     }
-
     return score;
 }
 
@@ -71,6 +103,9 @@ function startGame() {
 
     let winner = determineWinner(team1Cards, team2Cards);
     document.getElementById('gameResults').textContent = winner;
+    updateGameResultsInFirebase(winner);
+}
+
     updateGameResultsInFirebase(winner);
 }
 
