@@ -1,3 +1,7 @@
+
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,6 +9,22 @@
     <!-- Add CSS here for styling -->
 </head>
 <body>
+    <!-- Add this at the beginning of the <body> tag in game.html -->
+<div id="playerSetupArea">
+    <h2>Enter your name and choose your team</h2>
+    <form id="playerSetupForm">
+        <input type="text" id="playerName" placeholder="Your name" required>
+        <select id="teamChoice">
+            <option value="team1">Team 1</option>
+            <option value="team2">Team 2</option>
+        </select>
+        <button type="submit">Join Game</button>
+    </form>
+</div>
+
+<div id="gameArea" style="display: none;">
+    <!-- Existing game area content -->
+</div>
     <div id="gameArea">
         <h2>Game Area</h2>
         <div id="team1" class="team">
