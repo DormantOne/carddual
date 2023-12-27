@@ -3,7 +3,13 @@ import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1
 
 // Firebase configuration (use the same configuration as your sign-in page)
 const firebaseConfig = {
-    // Your Firebase configuration
+    apiKey: "AIzaSyDwsdgIZ1hpEmsQg7sZY0A2vEo71jyhwbY",
+    authDomain: "carddual-b13da.firebaseapp.com",
+    projectId: "carddual-b13da",
+    storageBucket: "carddual-b13da.appspot.com",
+    messagingSenderId: "280023498180",
+    appId: "1:280023498180:web:940612b32d85e5a08c7891",
+    measurementId: "G-KF6XZ6F2MS"
 };
 
 // Initialize Firebase
