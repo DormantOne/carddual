@@ -24,13 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function displayPlayerTeamChoices(players) {
     const playerTeamChoices = document.getElementById('playerTeamChoices');
-    playerTeamChoices.innerHTML = ''; // Clear existing content
+    playerTeamChoices.innerHTML = '';
 
     players.forEach(player => {
         let playerRow = document.createElement('div');
         playerRow.innerHTML = `
             <span>${player}</span>
-            <select class="teamSelect" data-player="${player}">
+            <select class="teamSelect" data-player="${player}" onchange="updateTeamCount()">
                 <option value="">Select Team</option>
                 <option value="team1">Team 1</option>
                 <option value="team2">Team 2</option>
@@ -40,16 +40,37 @@ function displayPlayerTeamChoices(players) {
     });
 }
 
+function updateTeamCount() {
+    let teamCounts = { team1: 0, team2: 0 };
+    document.querySelectorAll('.teamSelect').forEach(select => {
+        if (select.value) {
+            teamCounts[select.value]++;
+        }
+    });
+    document.getElementById('team1Count').innerText = teamCounts.team1;
+    document.getElementById('team2Count').innerText = teamCounts.team2;
+}
+
 document.getElementById('finalizeTeamSelection').addEventListener('click', () => {
     let playerTeams = {};
+    let teamCounts = { team1: 0, team2: 0 };
+
     document.querySelectorAll('.teamSelect').forEach(select => {
         let playerName = select.getAttribute('data-player');
         let team = select.value;
-        playerTeams[playerName] = team;
+        if (team) {
+            playerTeams[playerName] = team;
+            teamCounts[team]++;
+        }
     });
 
-    // Save the team selections to Firebase
+    if (Object.values(teamCounts).some(count => count === 0)) {
+        alert('Each team must have at least one player.');
+        return;
+    }
+
     set(ref(database, 'teamSelections/'), playerTeams);
+    console.log("Teams have been finalized.");
 });
 
 function listenToTeamSelectionChanges() {
@@ -57,6 +78,7 @@ function listenToTeamSelectionChanges() {
         const selections = snapshot.val();
         if (selections) {
             updateUIWithTeamSelections(selections);
+            updateTeamCount(); // Update team count when Firebase data changes
         }
     });
 }
@@ -69,4 +91,3 @@ function updateUIWithTeamSelections(selections) {
         }
     });
 }
-
