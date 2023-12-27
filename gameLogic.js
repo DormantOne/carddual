@@ -18,19 +18,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-let currentPlayer = { name: '', team: '' };
-
-document.getElementById('playerSetupForm').addEventListener('submit', (event) => {
-    event.preventDefault();
-    currentPlayer.name = document.getElementById('playerName').value.trim();
-    currentPlayer.team = document.getElementById('teamChoice').value;
-
-    document.getElementById('playerSetupArea').style.display = 'none';
-    document.getElementById('gameArea').style.display = 'block';
-
-    startGameCountdown(); // Start the game countdown timer
-});
-
 function addPlayerToFirebase(name) {
     const playerRef = ref(database, 'players/');
     const newPlayerRef = push(playerRef);
@@ -89,23 +76,7 @@ function handleCheckboxChange(event) {
     document.getElementById('enterGame').disabled = selectedPlayers.size !== 4;
 }
 
-function startGameCountdown() {
-    let timeLeft = 30; // 30 seconds for example
-    const timerId = setInterval(() => {
-        console.log(`Time remaining: ${timeLeft} seconds`);
-        timeLeft -= 1;
-        if (timeLeft <= 0) {
-            clearInterval(timerId);
-            finalizeGameSetup();
-        }
-    }, 1000);
-}
-function finalizeGameSetup() {
-    // Finalize the setup and reveal only team cards based on currentPlayer.team
-    // For example, if currentPlayer.team is 'team1', show only team 1's cards
-    console.log(`Finalizing setup for ${currentPlayer.name} in ${currentPlayer.team}`);
-    // Logic to display cards for the player's team
-}
+// ... rest of the script remains the same
 
 // Set up event listeners
 document.addEventListener('DOMContentLoaded', () => {
