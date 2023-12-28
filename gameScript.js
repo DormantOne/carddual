@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchAndDisplayTeamAssignments();
     document.getElementById('submitUpdate').addEventListener('click', submitTeamUpdates);
     document.getElementById('finalizeTeams').addEventListener('click', finalizeSelections);
+    document.getElementById('confirmUser').addEventListener('click', lockInUserSelection);
 });
 
 function fetchAndDisplayTeamAssignments() {
@@ -46,28 +47,38 @@ function startListeningToPlayerChanges() {
 }
 
 function updatePlayerList(players) {
-    const playerTeamChoices = document.getElementById('playerTeamChoices');
-    playerTeamChoices.innerHTML = '';
+    const userSelectionDiv = document.getElementById('userSelection');
+    userSelectionDiv.innerHTML = ''; // Clear existing options
 
-    for (const key in players) {
-        if (players.hasOwnProperty(key)) {
-            const playerRow = document.createElement('div');
-            playerRow.innerHTML = `
-                <span>${players[key].name}</span>
-                <select>
-                    <option value="teamA">Team A</option>
-                    <option value="teamB">Team B</option>
-                </select>
-            `;
-            playerTeamChoices.appendChild(playerRow);
-        }
+    Object.keys(players).forEach(key => {
+        const playerOption = document.createElement('div');
+        playerOption.innerHTML = `
+            <input type="radio" name="playerChoice" id="player_${key}" value="${players[key].name}">
+            <label for="player_${key}">${players[key].name}</label>
+        `;
+        userSelectionDiv.appendChild(playerOption);
+    });
+}
+
+function lockInUserSelection() {
+    const selectedUser = document.querySelector('input[name="playerChoice"]:checked').value;
+    if (selectedUser) {
+        set(ref(database, `lockedUsers/${selectedUser}`), true)
+            .then(() => {
+                localStorage.setItem('lockedUser', selectedUser);
+                alert('User selection confirmed.');
+            }).catch((error) => {
+                console.error('Error locking in user:', error);
+            });
+    } else {
+        alert('Please select a user.');
     }
 }
 
 function submitTeamUpdates() {
     const playerTeamAssignments = {};
     const playerElements = document.querySelectorAll('#playerTeamChoices div');
-    
+
     playerElements.forEach(el => {
         const playerName = el.querySelector('span').textContent;
         const team = el.querySelector('select').value;
