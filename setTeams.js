@@ -18,13 +18,19 @@ const database = getDatabase(app);
 const MAX_PLAYERS_PER_TEAM = 2;
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('playerName')) {
-        alert('You have already joined a team.');
-        displayTeamStatus();
-    }
-
+    checkExistingPlayer();
     document.getElementById('joinTeam').addEventListener('click', joinTeam);
 });
+
+function checkExistingPlayer() {
+    const playerName = localStorage.getItem('playerName');
+    const team = localStorage.getItem('team');
+    if (playerName && team) {
+        alert(`You are ${playerName}. You have already joined ${team}.`);
+        document.getElementById('teamSelection').style.display = 'none';
+        displayTeamStatus();
+    }
+}
 
 function joinTeam() {
     const playerName = document.getElementById('playerName').value.trim();
@@ -32,6 +38,11 @@ function joinTeam() {
 
     if (!playerName) {
         alert('Please enter your name.');
+        return;
+    }
+
+    if (localStorage.getItem('playerName')) {
+        alert('Only one player per browser is allowed.');
         return;
     }
 
@@ -44,8 +55,8 @@ function joinTeam() {
                 .then(() => {
                     localStorage.setItem('playerName', playerName);
                     localStorage.setItem('team', teamChoice);
-                    alert(`You have successfully joined ${teamChoice}.`);
-                    displayTeamStatus();
+                    alert(`You are ${playerName}. You have successfully joined ${teamChoice}.`);
+                    checkExistingPlayer();
                 }).catch((error) => {
                     console.error('Error joining team:', error);
                 });
