@@ -5,39 +5,34 @@
     <!-- Add CSS here for styling -->
 </head>
 <body>
-    <div id="playerSetupArea">
-        <!-- Player setup form (if needed) -->
-    </div>
-
-    <div id="teamSelectionArea">
-        <h3>Select Teams</h3>
-
-        <div id="playerTeamChoices">
-            <!-- Player names and team choices will be populated here -->
+    <div id="gameArea">
+        <h2>Card Game</h2>
+        <div id="teamAChoices">
+            <h3>Team A</h3>
+            <!-- Team A's choices will be displayed here -->
         </div>
-
-        <!-- ... existing HTML ... -->
-
-
-    <button id="submitUpdate">Submit Update</button>
-    <button id="finalizeTeams" disabled>Finalize</button>
-
-        <div id="validationMessage"></div> <!-- Display validation messages here -->
+        <div id="teamBChoices">
+            <h3>Team B</h3>
+            <!-- Team B's choices will be displayed here -->
+        </div>
+        <div id="cardSelection">
+            <h3>Choose Your Cards</h3>
+            <select id="card1">
+                <option value="Robot">Robot</option>
+                <option value="Tiger">Tiger</option>
+                <option value="Mouse">Mouse</option>
+                <option value="Quark">Quark</option>
+            </select>
+            <select id="card2">
+                <option value="Robot">Robot</option>
+                <option value="Tiger">Tiger</option>
+                <option value="Mouse">Mouse</option>
+                <option value="Quark">Quark</option>
+            </select>
+            <button id="lockInCards">Lock In Cards</button>
+        </div>
     </div>
 
-    <div id="gameArea" style="display: none;">
-        <!-- Game area content -->
-    </div>
-
-    <div id="teamAssignmentsDisplay"></div>
-
-    <div id="userSelection">
-    <!-- User selection options will be populated here -->
-    </div>
-    <button id="confirmUser">Confirm Selection</button>
-
-    
-
-    <script type="module" src="gameScript.js"></script>
+    <script type="module" src="gameLogic.js"></script>
 </body>
 </html>
