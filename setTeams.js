@@ -19,6 +19,7 @@ const MAX_PLAYERS_PER_TEAM = 2;
 
 document.addEventListener('DOMContentLoaded', () => {
     checkExistingPlayer();
+     displayTeamStatus();  // Display team status as soon as the page loads
     document.getElementById('joinTeam').addEventListener('click', joinTeam);
 });
 
