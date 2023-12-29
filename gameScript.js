@@ -63,17 +63,32 @@ function updatePlayerList(players) {
 function lockInUserSelection() {
     const selectedUser = document.querySelector('input[name="playerChoice"]:checked').value;
     if (selectedUser) {
-        set(ref(database, `lockedUsers/${selectedUser}`), true)
-            .then(() => {
-                localStorage.setItem('lockedUser', selectedUser);
-                alert('User selection confirmed.');
-            }).catch((error) => {
-                console.error('Error locking in user:', error);
-            });
+        // Lock the user and link them with their team choice
+        linkUserWithTeam(selectedUser);
     } else {
         alert('Please select a user.');
     }
 }
+
+function linkUserWithTeam(username) {
+    // Fetch team choice and link with the user
+    onValue(ref(database, 'teamAssignments/'), (snapshot) => {
+        const teamAssignments = snapshot.val();
+        if (teamAssignments && teamAssignments[username]) {
+            const userTeam = teamAssignments[username].team;
+            set(ref(database, `lockedUsers/${username}`), { team: userTeam })
+                .then(() => {
+                    localStorage.setItem('lockedUser', username);
+                    alert('User and team selection confirmed.');
+                }).catch((error) => {
+                    console.error('Error locking in user and team:', error);
+                });
+        }
+    }, {
+        onlyOnce: true
+    });
+}
+
 
 function submitTeamUpdates() {
     const playerTeamAssignments = {};
