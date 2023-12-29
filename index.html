@@ -1,36 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Card Game Sign-In</title>
+    <title>Card Game Team Selection</title>
     <!-- Add CSS here for styling -->
 </head>
 <body>
-
-<!--   <button onclick="location.href='game.html'">Test Redirect</button> -->
-
-    <div id="signInArea">
-        <h2>Enter Your Name to Play the Card Game</h2>
-        <form id="signInForm">
-            <input type="text" id="playerName" placeholder="Your name" required>
-            <button type="submit">Sign In</button>
-        </form>
+    <div id="teamSelection">
+        <h2>Select Your Team for the Card Game</h2>
+        <input type="text" id="playerName" placeholder="Enter your name" required>
+        <select id="teamChoice">
+            <option value="teamA">Team A</option>
+            <option value="teamB">Team B</option>
+        </select>
+        <button id="joinTeam">Join Team</button>
     </div>
 
+    <div id="teamStatus">
+        <h3>Current Team Status:</h3>
+        <div id="teamAStatus">Team A: </div>
+        <div id="teamBStatus">Team B: </div>
+    </div>
 
-<!-- Add this inside the <body> tag, preferably below the playerDisplayArea -->
-<div id="playerDisplayArea">
-    <h3>Players:</h3>
-    <ul id="playerList">
-        <!-- Player names with checkboxes will be listed here -->
-    </ul>
-</div>
-
-<button id="enterGame" disabled>Enter Game</button>
-    
-<div id="clearArea">
-    <button id="clearPlayers">Clear All Players</button>
-</div>
-
-    <script type="module" src="gameLogic.js"></script>
+    <script type="module" src="setTeams.js"></script>
 </body>
 </html>
