@@ -122,13 +122,17 @@ function finalizeSelections() {
     const currentAssignmentsRef = ref(database, 'teamAssignments/');
     onValue(currentAssignmentsRef, (snapshot) => {
         const currentAssignments = snapshot.val();
-        Object.keys(currentAssignments).forEach(key => {
-            currentAssignments[key].status = 'final';
-        });
+        if (currentAssignments) {  // Check if the data exists
+            Object.keys(currentAssignments).forEach(key => {
+                currentAssignments[key].status = 'final';
+            });
 
-        set(currentAssignmentsRef, currentAssignments)
-            .then(() => console.log("Final team assignments saved."))
-            .catch((error) => console.error("Error finalizing team assignments: ", error));
+            set(currentAssignmentsRef, currentAssignments)
+                .then(() => console.log("Final team assignments saved."))
+                .catch((error) => console.error("Error finalizing team assignments: ", error));
+        } else {
+            console.log("No team assignments to finalize.");
+        }
 
         // Additional UI changes to indicate finalization
         document.querySelectorAll('#playerTeamChoices select').forEach(select => {
@@ -137,6 +141,6 @@ function finalizeSelections() {
         document.getElementById('submitUpdate').disabled = true;
         document.getElementById('finalizeTeams').disabled = true;
     }, {
-        onlyOnce: true // Fetch data only once
+        onlyOnce: true  // Fetch data only once
     });
 }
