@@ -39,16 +39,27 @@ function initiateDuel() {
         const gameData = snapshot.val();
         if (isEveryoneLockedIn(gameData)) {
             const roundResult = calculateRoundResult(gameData);
-            alert(`Winner: ${roundResult.winner}`);
+            displayRoundResults(roundResult, gameData); // Display round results including all players' cards
             updateScores(roundResult.winner);
-            resetCardSelections();
-            document.getElementById('duel').disabled = true;
-            document.getElementById('rematch').disabled = false;
+            clearCurrentCards(); // Clear the current card selections
+            document.getElementById('duel').disabled = true; // Disable duel button
         } else {
             alert('Not everyone has locked in their cards.');
         }
     }, {
         onlyOnce: true
+    });
+}
+
+function displayRoundResults(roundResult, gameData) {
+    // Display winner and all players' cards
+    const resultDiv = document.getElementById('roundResult');
+    resultDiv.innerHTML = `Winner: ${roundResult.winner}<br>`;
+    Object.entries(gameData.teamA).forEach(([player, data]) => {
+        resultDiv.innerHTML += `${player} (Team A): ${data.cards.join(', ')}<br>`;
+    });
+    Object.entries(gameData.teamB).forEach(([player, data]) => {
+        resultDiv.innerHTML += `${player} (Team B): ${data.cards.join(', ')}<br>`;
     });
 }
 
@@ -70,6 +81,24 @@ function resetCardSelections() {
     });
 }
 
+function clearCurrentCards() {
+    // Clear the card selections in Firebase
+    const gameRef = ref(database, 'game');
+    onValue(gameRef, (snapshot) => {
+        const gameData = snapshot.val();
+        ['teamA', 'teamB'].forEach(team => {
+            Object.keys(gameData[team]).forEach(player => {
+                gameData[team][player].cards = []; // Clear cards
+            });
+        });
+        set(gameRef, gameData)
+            .then(() => console.log("Card selections cleared."))
+            .catch((error) => console.error("Error clearing card selections: ", error));
+    }, {
+        onlyOnce: true
+    });
+}
+
 function isEveryoneLockedIn(gameData) {
     return Object.values(gameData.teamA).every(player => player.locked) &&
         Object.values(gameData.teamB).every(player => player.locked);
@@ -77,13 +106,14 @@ function isEveryoneLockedIn(gameData) {
 
 
 function startRematch() {
+    // Reset the game state for a new round
     resetCardSelections();
-    checkLockStatusAndEnableDuel();
-    // ... Additional logic for starting a rematch ...
-    // Reset UI elements as necessary
-    document.getElementById('lockInCards').disabled = false;
-    document.getElementById('rematch').disabled = true;
+    document.getElementById('duel').disabled = false; // Re-enable the duel button
+    document.getElementById('rematch').disabled = true; // Disable rematch button
+    // Clear the round result display
+    document.getElementById('roundResult').innerHTML = '';
 }
+
 function calculateRoundResult(gameData) {
     let teamAScore = calculateTeamScore(gameData.teamA);
     let teamBScore = calculateTeamScore(gameData.teamB);
