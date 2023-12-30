@@ -17,15 +17,13 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const cardValues = { 'Robot': 4, 'Tiger': 3, 'Mouse': 2, 'Quark': 1 };
 
+
+
 document.addEventListener('DOMContentLoaded', () => {
-    checkLockStatusAndEnableDuel();
+    setInterval(checkForUpdates, 1000);
     document.getElementById('duel').addEventListener('click', initiateDuel);
     document.getElementById('rematch').addEventListener('click', startRematch);
-
-    // Set up periodic update (every second)
-    setInterval(checkForUpdates, 1000);
 });
-
 
 function checkForUpdates() {
     onValue(ref(database, 'game'), (snapshot) => {
@@ -33,21 +31,17 @@ function checkForUpdates() {
         if (gameData) {
             updateUI(gameData);
         }
-    }); // Removed the onlyOnce: true option
+    });
 }
 
 
 function updateUI(gameData) {
-    // Implement the update logic as described
     const allLockedIn = isEveryoneLockedIn(gameData);
     document.getElementById('duel').disabled = !allLockedIn;
-
     if (gameData.duelCompleted) {
         displayDuelResults(gameData.lastRoundResult, gameData);
-        disableCardSelection();
-    } else {
-        enableCardSelection();
     }
+    
 
     if (gameData.rematchInitiated) {
         resetUIForNewRound();
@@ -83,15 +77,14 @@ function initiateDuel() {
         const gameData = snapshot.val();
         if (isEveryoneLockedIn(gameData)) {
             const roundResult = calculateRoundResult(gameData);
-            displayRoundResults(roundResult, gameData); // Display round results including all players' cards
-            updateScores(roundResult.winner);
-            clearCurrentCards(); // Clear the current card selections
+            displayRoundResults(roundResult, gameData); // Display round results
+            updateScores(roundResult.winner); // Update scores based on the duel result
+            // Do not clear current cards here
             document.getElementById('duel').disabled = true; // Disable duel button
+            document.getElementById('rematch').disabled = false; // Enable rematch button
         } else {
             alert('Not everyone has locked in their cards.');
         }
-    }, {
-        onlyOnce: true
     });
 }
 
@@ -154,16 +147,14 @@ function clearCurrentCards() {
 }
 
 
-
-
 function startRematch() {
-    // Reset the game state for a new round
-    resetCardSelections();
+    resetCardSelections(); // Reset the card selections for a new round
     document.getElementById('duel').disabled = false; // Re-enable the duel button
     document.getElementById('rematch').disabled = true; // Disable rematch button
-    // Clear the round result display
-    document.getElementById('roundResult').innerHTML = '';
+    document.getElementById('roundResult').innerHTML = ''; // Clear round results
 }
+
+
 
 function calculateRoundResult(gameData) {
     let teamAScore = calculateTeamScore(gameData.teamA);
