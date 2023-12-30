@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('rematch').addEventListener('click', startRematch);
 });
 
+
+
 function checkForUpdates() {
     onValue(ref(database, 'game'), (snapshot) => {
         const gameData = snapshot.val();
@@ -35,6 +37,7 @@ function checkForUpdates() {
             displayOpposingTeamStatus(gameData);
         }
     });
+    // Removed onlyOnce: true to keep listening
 }
 
 
@@ -110,22 +113,28 @@ function initiateDuel() {
         if (isEveryoneLockedIn(gameData)) {
             const roundResult = calculateRoundResult(gameData);
 
-            // Update game state for duel initiation
-            const updatedStatus = { duelInitiated: true, duelCompleted: false, rematchInitiated: false };
-            set(ref(database, 'game/status'), updatedStatus)
+            // Update game state with duel results
+            const updatedGameState = {
+                ...gameData,
+                lastRoundResult: roundResult,
+                status: {
+                    duelInitiated: true,
+                    duelCompleted: true,
+                    rematchInitiated: false
+                }
+            };
+
+            set(ref(database, 'game'), updatedGameState)
                 .then(() => {
-                    // Display round results and update scores
-                    displayRoundResults(roundResult, gameData);
-                    updateScores(roundResult.winner);
-                    document.getElementById('duel').disabled = true;
-                    document.getElementById('rematch').disabled = false;
+                    console.log("Duel results updated in Firebase.");
                 })
-                .catch((error) => console.error("Error updating game status for duel initiation: ", error));
+                .catch((error) => console.error("Error updating duel results: ", error));
         } else {
             alert('Not everyone has locked in their cards.');
         }
     }, { onlyOnce: true });
 }
+
 
 
 function displayRoundResults(roundResult, gameData) {
