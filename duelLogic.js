@@ -113,22 +113,28 @@ function initiateDuel() {
         if (isEveryoneLockedIn(gameData)) {
             const roundResult = calculateRoundResult(gameData);
 
-            // Update game state with duel results
+            // Update the duel results
             const updatedGameState = {
                 ...gameData,
-                lastRoundResult: roundResult,
-                status: {
-                    duelInitiated: true,
-                    duelCompleted: true,
-                    rematchInitiated: false
-                }
+                lastRoundResult: roundResult
             };
-
             set(ref(database, 'game'), updatedGameState)
                 .then(() => {
                     console.log("Duel results updated in Firebase.");
                 })
                 .catch((error) => console.error("Error updating duel results: ", error));
+
+            // Specifically update the status object in Firebase
+            const updatedStatus = {
+                duelInitiated: true,
+                duelCompleted: true,
+                rematchInitiated: false
+            };
+            set(ref(database, 'game/status'), updatedStatus)
+                .then(() => {
+                    console.log("Game status updated in Firebase.");
+                })
+                .catch((error) => console.error("Error updating game status: ", error));
         } else {
             alert('Not everyone has locked in their cards.');
         }
