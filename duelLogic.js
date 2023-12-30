@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
+
 function checkForUpdates() {
     onValue(ref(database, 'game'), (snapshot) => {
         const gameData = snapshot.val();
@@ -36,10 +38,8 @@ function checkForUpdates() {
             updateUI(gameData);
             displayOpposingTeamStatus(gameData);
         }
-    });
-    // Removed onlyOnce: true to keep listening
+    }); // Continuously listen for updates
 }
-
 
 function displayPlayerName() {
     // Ensure this element exists in your HTML
@@ -50,47 +50,41 @@ function displayPlayerName() {
     }
 }
 
+// Function to display the status of the opposing team
 function displayOpposingTeamStatus(gameData) {
-    // Ensure this element exists in your HTML
-    const opposingTeamStatusDiv = document.getElementById('opposingTeamStatus');
     const playerName = localStorage.getItem('playerName');
     const playerTeam = localStorage.getItem('team');
     const opposingTeam = playerTeam === 'teamA' ? 'teamB' : 'teamA';
-    
-    if (opposingTeamStatusDiv) {
+
+    const opposingTeamStatusDiv = document.getElementById('opposingTeamStatus');
+    if (opposingTeamStatusDiv && gameData[opposingTeam]) {
         opposingTeamStatusDiv.innerHTML = `<strong>${opposingTeam}:</strong><br>`;
-        if (gameData[opposingTeam]) {
-            Object.entries(gameData[opposingTeam]).forEach(([opposingPlayer, data]) => {
-                const lockedStatus = data.locked ? 'Locked' : 'Not Locked';
-                opposingTeamStatusDiv.innerHTML += `${opposingPlayer}: ${lockedStatus}<br>`;
-            });
-        }
+        Object.entries(gameData[opposingTeam]).forEach(([opposingPlayer, data]) => {
+            const lockedStatus = data.locked ? 'Locked' : 'Not Locked';
+            opposingTeamStatusDiv.innerHTML += `${opposingPlayer}: ${lockedStatus}<br>`;
+        });
     }
 }
 
 
-// Function to update the UI based on gameData changes
 function updateUI(gameData) {
     const allLockedIn = isEveryoneLockedIn(gameData);
-    document.getElementById('duel').disabled = !allLockedIn;
+    document.getElementById('duel').disabled = !allLockedIn || (gameData.status && gameData.status.duelCompleted);
 
     if (gameData.status && gameData.status.duelCompleted) {
-        displayDuelResults(gameData.lastRoundResult, gameData);
+        displayRoundResults(gameData.lastRoundResult, gameData);
         document.getElementById('rematch').disabled = false;
     } else {
         document.getElementById('rematch').disabled = true;
     }
-
-    // Additional UI updates as needed
 }
 
+// Ensure this function correctly checks the lock-in status for both teams
 function isEveryoneLockedIn(gameData) {
     const allTeamALockedIn = gameData.teamA && Object.values(gameData.teamA).every(player => player.locked);
     const allTeamBLockedIn = gameData.teamB && Object.values(gameData.teamB).every(player => player.locked);
-
     return allTeamALockedIn && allTeamBLockedIn;
 }
-
 
 function resetUIForNewRound() {
     document.getElementById('roundResult').innerHTML = '';
@@ -134,20 +128,30 @@ function initiateDuel() {
     }, { onlyOnce: true });
 }
 
-
-
 function displayRoundResults(roundResult, gameData) {
-    // Display winner and all players' cards
     const resultDiv = document.getElementById('roundResult');
-    resultDiv.innerHTML = `Winner: ${roundResult.winner}<br>`;
+    if (resultDiv && roundResult) {
+        // Display the winner of the duel
+        resultDiv.innerHTML = `Winner: ${roundResult.winner}<br>`;
 
-    // Display Team A's player cards
-    if (gameData.teamA) {
-        resultDiv.innerHTML += '<strong>Team A:</strong><br>';
-        Object.entries(gameData.teamA).forEach(([player, data]) => {
-            resultDiv.innerHTML += `${player}: ${data.cards.join(', ')}<br>`;
-        });
+        // Display Team A's player cards
+        if (gameData.teamA) {
+            resultDiv.innerHTML += '<strong>Team A:</strong><br>';
+            Object.entries(gameData.teamA).forEach(([player, data]) => {
+                resultDiv.innerHTML += `${player}: ${data.cards.join(', ')}<br>`;
+            });
+        }
+
+        // Display Team B's player cards
+        if (gameData.teamB) {
+            resultDiv.innerHTML += '<strong>Team B:</strong><br>';
+            Object.entries(gameData.teamB).forEach(([player, data]) => {
+                resultDiv.innerHTML += `${player}: ${data.cards.join(', ')}<br>`;
+            });
+        }
     }
+}
+
 
     // Display Team B's player cards
     if (gameData.teamB) {
