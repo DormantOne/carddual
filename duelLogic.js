@@ -70,19 +70,23 @@ function displayOpposingTeamStatus(gameData) {
 
 
 
+
+
 function updateUI(gameData) {
+    // Check if all players have locked in their cards
     const allLockedIn = isEveryoneLockedIn(gameData);
     document.getElementById('duel').disabled = !allLockedIn;
 
+    // Display duel results if the duel has been completed
     if (gameData.status && gameData.status.duelCompleted) {
-        // Display duel results if the duel has been completed
         displayDuelResults(gameData.lastRoundResult, gameData);
         document.getElementById('rematch').disabled = false;
     } else {
         document.getElementById('rematch').disabled = true;
     }
-}
 
+    // Additional UI updates as needed
+}
 
 function isEveryoneLockedIn(gameData) {
     const allTeamALockedIn = gameData.teamA && Object.values(gameData.teamA).every(player => player.locked);
