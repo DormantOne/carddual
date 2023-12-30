@@ -25,8 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('rematch').addEventListener('click', startRematch);
 });
 
-
-
 function checkForUpdates() {
     onValue(ref(database, 'game'), (snapshot) => {
         const gameData = snapshot.val();
@@ -34,57 +32,58 @@ function checkForUpdates() {
             updateUI(gameData);
             displayOpposingTeamStatus(gameData);
         }
-    }, {
-        // onlyOnce: true
     });
 }
 
+
 function displayPlayerName() {
+    // Ensure this element exists in your HTML
+    const playerNameDisplay = document.getElementById('playerNameDisplay');
     const playerName = localStorage.getItem('playerName');
-    if (playerName) {
-        document.getElementById('playerNameDisplay').textContent = `Welcome, ${playerName}`;
+    if (playerName && playerNameDisplay) {
+        playerNameDisplay.textContent = `Welcome, ${playerName}`;
     }
 }
 
 function displayOpposingTeamStatus(gameData) {
+    // Ensure this element exists in your HTML
+    const opposingTeamStatusDiv = document.getElementById('opposingTeamStatus');
     const playerName = localStorage.getItem('playerName');
     const playerTeam = localStorage.getItem('team');
     const opposingTeam = playerTeam === 'teamA' ? 'teamB' : 'teamA';
     
-    const opposingTeamStatusDiv = document.getElementById('opposingTeamStatus');
-    opposingTeamStatusDiv.innerHTML = `<strong>${opposingTeam}:</strong><br>`;
-
-    if (gameData[opposingTeam]) {
-        Object.entries(gameData[opposingTeam]).forEach(([opposingPlayer, data]) => {
-            const lockedStatus = data.locked ? 'Locked' : 'Not Locked';
-            opposingTeamStatusDiv.innerHTML += `${opposingPlayer}: ${lockedStatus}<br>`;
-        });
+    if (opposingTeamStatusDiv) {
+        opposingTeamStatusDiv.innerHTML = `<strong>${opposingTeam}:</strong><br>`;
+        if (gameData[opposingTeam]) {
+            Object.entries(gameData[opposingTeam]).forEach(([opposingPlayer, data]) => {
+                const lockedStatus = data.locked ? 'Locked' : 'Not Locked';
+                opposingTeamStatusDiv.innerHTML += `${opposingPlayer}: ${lockedStatus}<br>`;
+            });
+        }
     }
 }
 
 function updateUI(gameData) {
     const allLockedIn = isEveryoneLockedIn(gameData);
     document.getElementById('duel').disabled = !allLockedIn;
-    if (gameData.duelCompleted) {
+    if (gameData.status && gameData.status.duelCompleted) {
         displayDuelResults(gameData.lastRoundResult, gameData);
+        document.getElementById('rematch').disabled = false;
+    } else {
+        document.getElementById('rematch').disabled = true;
     }
-    
-
-    if (gameData.rematchInitiated) {
+    if (gameData.status && gameData.status.rematchInitiated) {
         resetUIForNewRound();
     }
 }
 
-
-
 function isEveryoneLockedIn(gameData) {
-    // Check if all players have locked in their cards
+    // Ensure this logic aligns with your game's data structure
     return Object.values(gameData.teamA).every(player => player.locked) &&
            Object.values(gameData.teamB).every(player => player.locked);
 }
 
 function resetUIForNewRound() {
-    // Reset UI elements for a new round, including clearing round results
     document.getElementById('roundResult').innerHTML = '';
 }
 
@@ -100,19 +99,24 @@ function checkLockStatusAndEnableDuel() {
 }
 
 function initiateDuel() {
+    // Ensure this logic aligns with your game's data structure
     onValue(ref(database, 'game'), (snapshot) => {
         const gameData = snapshot.val();
         if (isEveryoneLockedIn(gameData)) {
             const roundResult = calculateRoundResult(gameData);
-            displayRoundResults(roundResult, gameData); // Display round results
-            updateScores(roundResult.winner); // Update scores based on the duel result
-            // Do not clear current cards here
-            document.getElementById('duel').disabled = true; // Disable duel button
-            document.getElementById('rematch').disabled = false; // Enable rematch button
+            displayRoundResults(roundResult, gameData);
+            updateScores(roundResult.winner, gameData);
+
+            // Update game status in Firebase
+            const updatedStatus = { ...gameData.status, duelCompleted: true };
+            set(ref(database, 'game/status'), updatedStatus);
+
+            document.getElementById('duel').disabled = true;
+            document.getElementById('rematch').disabled = false;
         } else {
             alert('Not everyone has locked in their cards.');
         }
-    });
+    }, { onlyOnce: true });
 }
 
 function displayRoundResults(roundResult, gameData) {
