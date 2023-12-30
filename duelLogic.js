@@ -67,25 +67,27 @@ function displayOpposingTeamStatus(gameData) {
 
 
 
-// Function to update the UI based on gameData changes
 function updateUI(gameData) {
-    if (gameData.status) {
-        const { duelInitiated, duelCompleted, rematchInitiated } = gameData.status;
+    const allLockedIn = isEveryoneLockedIn(gameData);
+    document.getElementById('duel').disabled = !allLockedIn;
 
-        document.getElementById('duel').disabled = !duelInitiated || duelCompleted;
-        document.getElementById('rematch').disabled = !duelCompleted || rematchInitiated;
-
-        // Additional UI updates based on game status
-        // e.g., disable card selection if duelInitiated is true
+    if (gameData.status && gameData.status.duelCompleted) {
+        // Display duel results if the duel has been completed
+        displayDuelResults(gameData.lastRoundResult, gameData);
+        document.getElementById('rematch').disabled = false;
+    } else {
+        document.getElementById('rematch').disabled = true;
     }
 }
 
 
 function isEveryoneLockedIn(gameData) {
-    // Ensure this logic aligns with your game's data structure
-    return Object.values(gameData.teamA).every(player => player.locked) &&
-           Object.values(gameData.teamB).every(player => player.locked);
+    const allTeamALockedIn = gameData.teamA && Object.values(gameData.teamA).every(player => player.locked);
+    const allTeamBLockedIn = gameData.teamB && Object.values(gameData.teamB).every(player => player.locked);
+
+    return allTeamALockedIn && allTeamBLockedIn;
 }
+
 
 function resetUIForNewRound() {
     document.getElementById('roundResult').innerHTML = '';
@@ -102,25 +104,29 @@ function checkLockStatusAndEnableDuel() {
     });
 }
 
-// Function to initiate a duel
 function initiateDuel() {
     onValue(ref(database, 'game'), (snapshot) => {
         const gameData = snapshot.val();
         if (isEveryoneLockedIn(gameData)) {
             const roundResult = calculateRoundResult(gameData);
-            displayRoundResults(roundResult, gameData);
-            updateScores(roundResult.winner);
 
-            // Update game state in Firebase
+            // Update game state for duel initiation
             const updatedStatus = { duelInitiated: true, duelCompleted: false, rematchInitiated: false };
             set(ref(database, 'game/status'), updatedStatus)
-                .then(() => console.log("Duel initiated."))
+                .then(() => {
+                    // Display round results and update scores
+                    displayRoundResults(roundResult, gameData);
+                    updateScores(roundResult.winner);
+                    document.getElementById('duel').disabled = true;
+                    document.getElementById('rematch').disabled = false;
+                })
                 .catch((error) => console.error("Error updating game status for duel initiation: ", error));
         } else {
             alert('Not everyone has locked in their cards.');
         }
     }, { onlyOnce: true });
 }
+
 
 function displayRoundResults(roundResult, gameData) {
     // Display winner and all players' cards
