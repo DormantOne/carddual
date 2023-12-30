@@ -26,16 +26,16 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(checkForUpdates, 1000);
 });
 
+
 function checkForUpdates() {
     onValue(ref(database, 'game'), (snapshot) => {
         const gameData = snapshot.val();
         if (gameData) {
             updateUI(gameData);
         }
-    }, {
-        onlyOnce: true
-    });
+    }); // Removed the onlyOnce: true option
 }
+
 
 function updateUI(gameData) {
     // Implement the update logic as described
