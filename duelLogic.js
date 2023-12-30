@@ -21,7 +21,51 @@ document.addEventListener('DOMContentLoaded', () => {
     checkLockStatusAndEnableDuel();
     document.getElementById('duel').addEventListener('click', initiateDuel);
     document.getElementById('rematch').addEventListener('click', startRematch);
+
+    // Set up periodic update (every second)
+    setInterval(checkForUpdates, 1000);
 });
+
+function checkForUpdates() {
+    onValue(ref(database, 'game'), (snapshot) => {
+        const gameData = snapshot.val();
+        if (gameData) {
+            updateUI(gameData);
+        }
+    }, {
+        onlyOnce: true
+    });
+}
+
+function updateUI(gameData) {
+    // Implement the update logic as described
+    const allLockedIn = isEveryoneLockedIn(gameData);
+    document.getElementById('duel').disabled = !allLockedIn;
+
+    if (gameData.duelCompleted) {
+        displayDuelResults(gameData.lastRoundResult, gameData);
+        disableCardSelection();
+    } else {
+        enableCardSelection();
+    }
+
+    if (gameData.rematchInitiated) {
+        resetUIForNewRound();
+    }
+}
+
+
+
+function isEveryoneLockedIn(gameData) {
+    // Check if all players have locked in their cards
+    return Object.values(gameData.teamA).every(player => player.locked) &&
+           Object.values(gameData.teamB).every(player => player.locked);
+}
+
+function resetUIForNewRound() {
+    // Reset UI elements for a new round, including clearing round results
+    document.getElementById('roundResult').innerHTML = '';
+}
 
 function checkLockStatusAndEnableDuel() {
     onValue(ref(database, 'game'), (snapshot) => {
@@ -55,12 +99,22 @@ function displayRoundResults(roundResult, gameData) {
     // Display winner and all players' cards
     const resultDiv = document.getElementById('roundResult');
     resultDiv.innerHTML = `Winner: ${roundResult.winner}<br>`;
-    Object.entries(gameData.teamA).forEach(([player, data]) => {
-        resultDiv.innerHTML += `${player} (Team A): ${data.cards.join(', ')}<br>`;
-    });
-    Object.entries(gameData.teamB).forEach(([player, data]) => {
-        resultDiv.innerHTML += `${player} (Team B): ${data.cards.join(', ')}<br>`;
-    });
+
+    // Display Team A's player cards
+    if (gameData.teamA) {
+        resultDiv.innerHTML += '<strong>Team A:</strong><br>';
+        Object.entries(gameData.teamA).forEach(([player, data]) => {
+            resultDiv.innerHTML += `${player}: ${data.cards.join(', ')}<br>`;
+        });
+    }
+
+    // Display Team B's player cards
+    if (gameData.teamB) {
+        resultDiv.innerHTML += '<strong>Team B:</strong><br>';
+        Object.entries(gameData.teamB).forEach(([player, data]) => {
+            resultDiv.innerHTML += `${player}: ${data.cards.join(', ')}<br>`;
+        });
+    }
 }
 
 function resetCardSelections() {
@@ -99,10 +153,7 @@ function clearCurrentCards() {
     });
 }
 
-function isEveryoneLockedIn(gameData) {
-    return Object.values(gameData.teamA).every(player => player.locked) &&
-        Object.values(gameData.teamB).every(player => player.locked);
-}
+
 
 
 function startRematch() {
