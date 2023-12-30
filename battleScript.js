@@ -1,30 +1,29 @@
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+// Assuming Firebase is already initialized
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Ensure the Firebase app is already initialized
     const database = getDatabase();
+    listenForReset(database);
 
-    document.getElementById('resetEverything').addEventListener('click', () => resetEverything(database));
+    document.getElementById('resetEverything').addEventListener('click', () => {
+        triggerReset(database);
+    });
 });
 
-function resetEverything(database) {
-    // Clear local storage
-    localStorage.clear();
+function triggerReset(database) {
+    // Clear a specific node in Firebase to signal a reset
+    set(ref(database, 'resetSignal'), {})
+        .then(() => console.log("Reset signal triggered in Firebase."))
+        .catch((error) => console.error("Error triggering reset signal: ", error));
+}
 
-    // Reset Firebase Database
-    const initialData = {
-        teams: {
-            teamA: {},
-            teamB: {}
-        },
-        // Include any other initial data structure you need
-    };
-
-    set(ref(database), initialData)
-        .then(() => {
-            alert("Everything has been reset.");
-            // Redirect to the original HTML page
-            window.location.href = 'index.html'; // Change 'index.html' to your original page
-        })
-        .catch((error) => console.error("Error resetting Firebase: ", error));
+function listenForReset(database) {
+    const resetRef = ref(database, 'resetSignal');
+    onValue(resetRef, (snapshot) => {
+        if (snapshot.exists() && Object.keys(snapshot.val()).length === 0) {
+            // Detected an empty set, perform reset actions
+            localStorage.clear();
+            window.location.href = 'index.html'; // Redirect to the initial setup page
+        }
+    });
 }
