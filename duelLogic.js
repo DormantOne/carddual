@@ -69,15 +69,11 @@ function displayOpposingTeamStatus(gameData) {
 }
 
 
-
-
-
+// Function to update the UI based on gameData changes
 function updateUI(gameData) {
-    // Check if all players have locked in their cards
     const allLockedIn = isEveryoneLockedIn(gameData);
     document.getElementById('duel').disabled = !allLockedIn;
 
-    // Display duel results if the duel has been completed
     if (gameData.status && gameData.status.duelCompleted) {
         displayDuelResults(gameData.lastRoundResult, gameData);
         document.getElementById('rematch').disabled = false;
@@ -111,34 +107,27 @@ function checkLockStatusAndEnableDuel() {
     });
 }
 
+// Function to initiate a duel
 function initiateDuel() {
     onValue(ref(database, 'game'), (snapshot) => {
         const gameData = snapshot.val();
         if (isEveryoneLockedIn(gameData)) {
             const roundResult = calculateRoundResult(gameData);
 
-            // Update the duel results
+            // Update the entire game state with duel results and updated status
             const updatedGameState = {
                 ...gameData,
-                lastRoundResult: roundResult
+                lastRoundResult: roundResult,
+                status: {
+                    duelInitiated: true,
+                    duelCompleted: true,
+                    rematchInitiated: false
+                }
             };
-            set(ref(database, 'game'), updatedGameState)
-                .then(() => {
-                    console.log("Duel results updated in Firebase.");
-                })
-                .catch((error) => console.error("Error updating duel results: ", error));
 
-            // Specifically update the status object in Firebase
-            const updatedStatus = {
-                duelInitiated: true,
-                duelCompleted: true,
-                rematchInitiated: false
-            };
-            set(ref(database, 'game/status'), updatedStatus)
-                .then(() => {
-                    console.log("Game status updated in Firebase.");
-                })
-                .catch((error) => console.error("Error updating game status: ", error));
+            set(ref(database, 'game'), updatedGameState)
+                .then(() => console.log("Duel results and status updated in Firebase."))
+                .catch((error) => console.error("Error updating duel results and status: ", error));
         } else {
             alert('Not everyone has locked in their cards.');
         }
