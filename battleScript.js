@@ -1,5 +1,5 @@
 // Import necessary Firebase modules
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // Firebase configuration
@@ -12,11 +12,6 @@ const firebaseConfig = {
     appId: "1:280023498180:web:940612b32d85e5a08c7891",
     measurementId: "G-KF6XZ6F2MS"
 };
-
-// Initialize Firebase only if it hasn't been initialized yet
-if (!firebase.apps.length) {
-    initializeApp(firebaseConfig);
-}
 
 const database = getDatabase();
 
