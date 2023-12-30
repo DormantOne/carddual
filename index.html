@@ -21,7 +21,24 @@
         <div id="teamBStatus">Team B: </div>
     </div>
     <div id="launchGameContainer"></div>
-
+<!-- Inside index.html -->
+<button id="resetButton">Reset Everything</button>
     <script type="module" src="setTeams.js"></script>
 </body>
 </html>
+
+
+
+<script>
+  document.getElementById('resetButton').addEventListener('click', function() {
+    // Clear local storage
+    localStorage.removeItem('playerName');
+    localStorage.removeItem('team');
+
+    // Reset Firebase data
+    // (Implement the logic to reset or reinitialize your Firebase data)
+
+    // Optionally, redirect to index.html for a fresh start
+    window.location.href = 'index.html';
+  });
+</script>
