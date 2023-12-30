@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -18,8 +18,21 @@ const database = getDatabase(app);
 const cardValues = { 'Robot': 4, 'Tiger': 3, 'Mouse': 2, 'Quark': 1 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    checkLockStatusAndEnableDuel();
     document.getElementById('duel').addEventListener('click', initiateDuel);
+    document.getElementById('rematch').addEventListener('click', startRematch);
 });
+
+function checkLockStatusAndEnableDuel() {
+    onValue(ref(database, 'game'), (snapshot) => {
+        const gameData = snapshot.val();
+        if (isEveryoneLockedIn(gameData)) {
+            document.getElementById('duel').disabled = false;
+        } else {
+            document.getElementById('duel').disabled = true;
+        }
+    });
+}
 
 function initiateDuel() {
     onValue(ref(database, 'game'), (snapshot) => {
@@ -29,6 +42,8 @@ function initiateDuel() {
             alert(`Winner: ${roundResult.winner}`);
             updateScores(roundResult.winner);
             resetCardSelections();
+            document.getElementById('duel').disabled = true;
+            document.getElementById('rematch').disabled = false;
         } else {
             alert('Not everyone has locked in their cards.');
         }
@@ -37,9 +52,35 @@ function initiateDuel() {
     });
 }
 
+function resetCardSelections() {
+    // Fetch the current game data
+    onValue(ref(database, 'game'), (snapshot) => {
+        const gameData = snapshot.val();
+        Object.keys(gameData.teamA).forEach(player => {
+            gameData.teamA[player].locked = false;
+        });
+        Object.keys(gameData.teamB).forEach(player => {
+            gameData.teamB[player].locked = false;
+        });
+        set(ref(database, 'game'), gameData)
+            .then(() => console.log("Card selections have been reset for a new round."))
+            .catch((error) => console.error("Error resetting card selections: ", error));
+    }, {
+        onlyOnce: true
+    });
+}
+
 function isEveryoneLockedIn(gameData) {
     return Object.values(gameData.teamA).every(player => player.locked) &&
-           Object.values(gameData.teamB).every(player => player.locked);
+        Object.values(gameData.teamB).every(player => player.locked);
+}
+
+function startRematch() {
+    // Enable card locking and disable Rematch button
+    document.getElementById('lockInCards').disabled = false;
+    document.getElementById('rematch').disabled = true;
+    resetCardSelections();
+    checkLockStatusAndEnableDuel();
 }
 
 function calculateRoundResult(gameData) {
