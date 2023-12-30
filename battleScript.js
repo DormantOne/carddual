@@ -13,12 +13,31 @@ const firebaseConfig = {
     measurementId: "G-KF6XZ6F2MS"
 };
 
+// Initialize Firebase only if no instances have been initialized yet
+if (!getApps().length) {
+    initializeApp(firebaseConfig);
+}
+
 const database = getDatabase();
 
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('resetButton').addEventListener('click', triggerReset);
+    displayPlayerInfo();
     listenForReset();
 });
+
+function displayPlayerInfo() {
+    const playerName = localStorage.getItem('playerName');
+    const playerTeam = localStorage.getItem('team');
+
+    if (playerName && playerTeam) {
+        const playerInfoDiv = document.getElementById('playerInfo');
+        playerInfoDiv.innerHTML = `Player: ${playerName}, Team: ${playerTeam}`;
+    } else {
+        // Redirect to team selection page or show a message if player info is missing
+        window.location.href = 'index.html'; // Redirect to the initial page
+    }
+}
 
 function triggerReset() {
     // Clear all data in Firebase
