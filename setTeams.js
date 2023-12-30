@@ -84,6 +84,8 @@ function displayTeamStatus() {
     });
 }
 
+
+
 function checkIfGameCanStart() {
     onValue(ref(database, 'teams'), (snapshot) => {
         const teams = snapshot.val() || {};
@@ -95,8 +97,8 @@ function checkIfGameCanStart() {
     });
 }
 
+
 function displayLaunchGameButton() {
-    // Check if the button already exists to avoid duplicates
     if (!document.getElementById('launchGameButton')) {
         const launchButton = document.createElement('button');
         launchButton.id = 'launchGameButton';
@@ -106,10 +108,8 @@ function displayLaunchGameButton() {
         });
 
         const container = document.getElementById('launchGameContainer');
-        container.appendChild(launchButton);
+        if (container) {
+            container.appendChild(launchButton);
+        }
     }
-}
-
-    const container = document.getElementById('launchGameContainer');
-    container.appendChild(launchButton);
 }
