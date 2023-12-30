@@ -17,23 +17,50 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const cardValues = { 'Robot': 4, 'Tiger': 3, 'Mouse': 2, 'Quark': 1 };
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
-    setInterval(checkForUpdates, 1000);
+    displayPlayerName();
+    checkForUpdates();
+    setInterval(checkForUpdates, 100); // Existing setup
     document.getElementById('duel').addEventListener('click', initiateDuel);
     document.getElementById('rematch').addEventListener('click', startRematch);
 });
+
+
 
 function checkForUpdates() {
     onValue(ref(database, 'game'), (snapshot) => {
         const gameData = snapshot.val();
         if (gameData) {
             updateUI(gameData);
+            displayOpposingTeamStatus(gameData);
         }
+    }, {
+        // onlyOnce: true
     });
 }
 
+function displayPlayerName() {
+    const playerName = localStorage.getItem('playerName');
+    if (playerName) {
+        document.getElementById('playerNameDisplay').textContent = `Welcome, ${playerName}`;
+    }
+}
+
+function displayOpposingTeamStatus(gameData) {
+    const playerName = localStorage.getItem('playerName');
+    const playerTeam = localStorage.getItem('team');
+    const opposingTeam = playerTeam === 'teamA' ? 'teamB' : 'teamA';
+    
+    const opposingTeamStatusDiv = document.getElementById('opposingTeamStatus');
+    opposingTeamStatusDiv.innerHTML = `<strong>${opposingTeam}:</strong><br>`;
+
+    if (gameData[opposingTeam]) {
+        Object.entries(gameData[opposingTeam]).forEach(([opposingPlayer, data]) => {
+            const lockedStatus = data.locked ? 'Locked' : 'Not Locked';
+            opposingTeamStatusDiv.innerHTML += `${opposingPlayer}: ${lockedStatus}<br>`;
+        });
+    }
+}
 
 function updateUI(gameData) {
     const allLockedIn = isEveryoneLockedIn(gameData);
