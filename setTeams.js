@@ -16,6 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const MAX_PLAYERS_PER_TEAM = 2;
+const TOTAL_PLAYERS_REQUIRED = MAX_PLAYERS_PER_TEAM * 2; // Total players required to start the game
 
 document.addEventListener('DOMContentLoaded', () => {
     checkExistingPlayer();
@@ -86,20 +87,28 @@ function displayTeamStatus() {
 function checkIfGameCanStart() {
     onValue(ref(database, 'teams'), (snapshot) => {
         const teams = snapshot.val() || {};
-        const canStart = Object.values(teams).every(team => Object.keys(team).length >= MAX_PLAYERS_PER_TEAM);
+        const totalPlayers = Object.values(teams).reduce((sum, team) => sum + Object.keys(team).length, 0);
 
-        if (canStart) {
+        if (totalPlayers === TOTAL_PLAYERS_REQUIRED) {
             displayLaunchGameButton();
         }
     });
 }
 
 function displayLaunchGameButton() {
-    const launchButton = document.createElement('button');
-    launchButton.textContent = 'Launch Game';
-    launchButton.addEventListener('click', () => {
-        window.location.href = 'game.html'; // Redirect to the game page
-    });
+    // Check if the button already exists to avoid duplicates
+    if (!document.getElementById('launchGameButton')) {
+        const launchButton = document.createElement('button');
+        launchButton.id = 'launchGameButton';
+        launchButton.textContent = 'Launch Game';
+        launchButton.addEventListener('click', () => {
+            window.location.href = 'game.html'; // Redirect to the game page
+        });
+
+        const container = document.getElementById('launchGameContainer');
+        container.appendChild(launchButton);
+    }
+}
 
     const container = document.getElementById('launchGameContainer');
     container.appendChild(launchButton);
