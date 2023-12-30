@@ -19,8 +19,9 @@ const MAX_PLAYERS_PER_TEAM = 2;
 
 document.addEventListener('DOMContentLoaded', () => {
     checkExistingPlayer();
-     displayTeamStatus();  // Display team status as soon as the page loads
+    displayTeamStatus();
     document.getElementById('joinTeam').addEventListener('click', joinTeam);
+    checkIfGameCanStart();
 });
 
 function checkExistingPlayer() {
@@ -30,6 +31,7 @@ function checkExistingPlayer() {
         alert(`You are ${playerName}. You have already joined ${team}.`);
         document.getElementById('teamSelection').style.display = 'none';
         displayTeamStatus();
+        checkIfGameCanStart();
     }
 }
 
@@ -58,6 +60,7 @@ function joinTeam() {
                     localStorage.setItem('team', teamChoice);
                     alert(`You are ${playerName}. You have successfully joined ${teamChoice}.`);
                     checkExistingPlayer();
+                    checkIfGameCanStart();
                 }).catch((error) => {
                     console.error('Error joining team:', error);
                 });
@@ -78,4 +81,26 @@ function displayTeamStatus() {
             teamStatusDiv.textContent = `${teamName}: ${Object.keys(team).join(', ')}`;
         });
     });
+}
+
+function checkIfGameCanStart() {
+    onValue(ref(database, 'teams'), (snapshot) => {
+        const teams = snapshot.val() || {};
+        const canStart = Object.values(teams).every(team => Object.keys(team).length >= MAX_PLAYERS_PER_TEAM);
+
+        if (canStart) {
+            displayLaunchGameButton();
+        }
+    });
+}
+
+function displayLaunchGameButton() {
+    const launchButton = document.createElement('button');
+    launchButton.textContent = 'Launch Game';
+    launchButton.addEventListener('click', () => {
+        window.location.href = 'game.html'; // Redirect to the game page
+    });
+
+    const container = document.getElementById('launchGameContainer');
+    container.appendChild(launchButton);
 }
