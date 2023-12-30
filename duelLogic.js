@@ -75,14 +75,15 @@ function isEveryoneLockedIn(gameData) {
         Object.values(gameData.teamB).every(player => player.locked);
 }
 
+
 function startRematch() {
-    // Enable card locking and disable Rematch button
-    document.getElementById('lockInCards').disabled = false;
-    document.getElementById('rematch').disabled = true;
     resetCardSelections();
     checkLockStatusAndEnableDuel();
+    // ... Additional logic for starting a rematch ...
+    // Reset UI elements as necessary
+    document.getElementById('lockInCards').disabled = false;
+    document.getElementById('rematch').disabled = true;
 }
-
 function calculateRoundResult(gameData) {
     let teamAScore = calculateTeamScore(gameData.teamA);
     let teamBScore = calculateTeamScore(gameData.teamB);
@@ -115,7 +116,3 @@ function updateScores(winner) {
     // This function needs to be implemented based on your scoring system
 }
 
-function resetCardSelections() {
-    // Reset the card selections in Firebase to allow for a new round
-    // This function needs to be implemented based on your game's logic
-}
