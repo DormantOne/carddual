@@ -22,9 +22,57 @@ const database = getDatabase();
 
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('resetButton').addEventListener('click', triggerReset);
+    document.getElementById('lockInCards').addEventListener('click', lockInCards);
     displayPlayerInfo();
     listenForReset();
+    listenForGameUpdates();
+   
+
 });
+
+function lockInCards() {
+    const playerName = localStorage.getItem('playerName');
+    const playerTeam = localStorage.getItem('team');
+    const card1 = document.getElementById('card1').value;
+    const card2 = document.getElementById('card2').value;
+
+    // Update Firebase with selected cards
+    const playerRef = ref(database, `game/${playerTeam}/${playerName}`);
+    set(playerRef, {
+        cards: [card1, card2],
+        locked: true
+    });
+}
+
+function listenForGameUpdates() {
+    const gameRef = ref(database, 'game');
+    onValue(gameRef, (snapshot) => {
+        const gameData = snapshot.val();
+        if (gameData) {
+            updateTeamChoicesUI(gameData);
+        }
+    });
+}
+
+function updateTeamChoicesUI(gameData) {
+    const playerTeam = localStorage.getItem('team');
+    const opposingTeam = playerTeam === 'teamA' ? 'teamB' : 'teamA';
+
+    displayChoices('teamAChoices', gameData.teamA, playerTeam === 'teamA');
+    displayChoices('teamBChoices', gameData.teamB, playerTeam === 'teamB');
+
+    // Function to display choices or lock-in status
+    function displayChoices(elementId, teamData, isOwnTeam) {
+        const container = document.getElementById(elementId);
+        container.innerHTML = ''; // Clear previous content
+
+        for (const playerName in teamData) {
+            const playerData = teamData[playerName];
+            const displayText = isOwnTeam ? playerData.cards.join(', ') : (playerData.locked ? 'Locked' : 'Not Locked');
+            container.innerHTML += `<div>${playerName}: ${displayText}</div>`;
+        }
+    }
+}
 
 function displayPlayerInfo() {
     const playerName = localStorage.getItem('playerName');
