@@ -40,27 +40,6 @@ function initiateDuel() {
         if (isEveryoneLockedIn(gameData)) {
             const roundResult = calculateRoundResult(gameData);
 
-            // Update Firebase with duel results
-            set(ref(database, 'game/lastRoundResult'), roundResult)
-                .then(() => {
-                    console.log("Duel results updated in Firebase.");
-                    displayDuelResults(roundResult);
-                    document.getElementById('duel').disabled = true; // Disable duel button after duel
-                    document.getElementById('rematch').disabled = false; // Enable rematch button
-                })
-                .catch((error) => console.error("Error updating duel results: ", error));
-        } else {
-            alert('Not everyone has locked in their cards.');
-        }
-    }, { onlyOnce: true });
-}
-
-function initiateDuel() {
-    onValue(ref(database, 'game'), (snapshot) => {
-        const gameData = snapshot.val();
-        if (isEveryoneLockedIn(gameData)) {
-            const roundResult = calculateRoundResult(gameData);
-
             // Update Firebase with duel results and game status
             const updatedGameState = {
                 ...gameData,
