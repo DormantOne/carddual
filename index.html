@@ -29,16 +29,43 @@
 
 
 
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  // Firebase configuration
+  const firebaseConfig = {
+      apiKey: "AIzaSyDwsdgIZ1hpEmsQg7sZY0A2vEo71jyhwbY",
+      authDomain: "carddual-b13da.firebaseapp.com",
+      projectId: "carddual-b13da",
+      storageBucket: "carddual-b13da.appspot.com",
+      messagingSenderId: "280023498180",
+      appId: "1:280023498180:web:940612b32d85e5a08c7891",
+      measurementId: "G-KF6XZ6F2MS"
+  };
+
+  // Check if Firebase has already been initialized
+if (!getApps().length) {
+    initializeApp(firebaseConfig);
+}
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+
   document.getElementById('resetButton').addEventListener('click', function() {
     // Clear local storage
     localStorage.removeItem('playerName');
     localStorage.removeItem('team');
 
     // Reset Firebase data
-    // (Implement the logic to reset or reinitialize your Firebase data)
-
-    // Optionally, redirect to index.html for a fresh start
-    window.location.href = 'index.html';
+    set(ref(database, 'game'), {}) // Clears the 'game' node in your Firebase database
+        .then(() => {
+            console.log("Firebase game data cleared.");
+            // Redirect to index.html for a fresh start
+            window.location.href = 'index.html';
+        })
+        .catch((error) => console.error("Error clearing Firebase game data: ", error));
   });
 </script>
+
