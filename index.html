@@ -45,27 +45,25 @@
   };
 
   // Check if Firebase has already been initialized
-if (!getApps().length) {
-    initializeApp(firebaseConfig);
-}
+  if (!getApps().length) {
+      initializeApp(firebaseConfig);
+  }
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const database = getDatabase(app);
+  const database = getDatabase();
 
   document.getElementById('resetButton').addEventListener('click', function() {
     // Clear local storage
-    localStorage.removeItem('playerName');
-    localStorage.removeItem('team');
+    localStorage.clear();
 
     // Reset Firebase data
-    set(ref(database, 'game'), {}) // Clears the 'game' node in your Firebase database
+    set(ref(database), {}) // Clears the entire Firebase database
         .then(() => {
-            console.log("Firebase game data cleared.");
+            console.log("Firebase data cleared.");
             // Redirect to index.html for a fresh start
             window.location.href = 'index.html';
         })
-        .catch((error) => console.error("Error clearing Firebase game data: ", error));
+        .catch((error) => console.error("Error clearing Firebase data: ", error));
   });
 </script>
+
 
