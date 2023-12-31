@@ -222,12 +222,20 @@ function displayPlayerInfo() {
     }
 }
 
+
+
 function triggerReset() {
     // Clear all data in Firebase
-    set(ref(database), {})
-        .then(() => console.log("Firebase data cleared."))
-        .catch((error) => console.error("Error clearing Firebase data: ", error));
+    set(ref(database, 'game'), {}) // specify the 'game' node to clear
+        .then(() => {
+            console.log("Firebase game data cleared.");
+            // Clear local storage and redirect to index.html
+            localStorage.clear();
+            window.location.href = 'index.html';
+        })
+        .catch((error) => console.error("Error clearing Firebase game data: ", error));
 }
+
 
 function listenForReset() {
     // Listen for changes at the root of your Firebase database
