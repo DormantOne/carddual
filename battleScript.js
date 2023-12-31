@@ -55,6 +55,38 @@ function initiateDuel() {
     }, { onlyOnce: true });
 }
 
+function initiateDuel() {
+    onValue(ref(database, 'game'), (snapshot) => {
+        const gameData = snapshot.val();
+        if (isEveryoneLockedIn(gameData)) {
+            const roundResult = calculateRoundResult(gameData);
+
+            // Update Firebase with duel results and game status
+            const updatedGameState = {
+                ...gameData,
+                lastRoundResult: roundResult,
+                status: {
+                    duelCompleted: true,
+                    rematchInitiated: false
+                }
+            };
+
+            set(ref(database, 'game'), updatedGameState)
+                .then(() => {
+                    console.log("Duel results and game status updated in Firebase.");
+                    displayDuelResults(roundResult); // Display duel results on the UI
+                    // Update button states after duel
+                    document.getElementById('duel').disabled = true; // Disable duel button
+                    document.getElementById('rematch').disabled = false; // Enable rematch button
+                })
+                .catch((error) => console.error("Error updating duel results and game status: ", error));
+        } else {
+            alert('Not everyone has locked in their cards.');
+        }
+    }, { onlyOnce: true });
+}
+
+
 function calculateRoundResult(gameData) {
     let teamAScore = 0, teamBScore = 0;
     const cardCounts = { teamA: {}, teamB: {} };
@@ -144,7 +176,8 @@ function listenForGameUpdates() {
         if (gameData) {
             updateTeamChoicesUI(gameData);
             checkAndToggleDuelButton(gameData);
-
+            // Update buttons based on game status
+            updateGameButtons(gameData.status);
             // Check for duel results and display them
             if (gameData.lastRoundResult) {
                 displayDuelResults(gameData.lastRoundResult);
@@ -153,6 +186,15 @@ function listenForGameUpdates() {
     });
 }
 
+function updateGameButtons(status) {
+    const duelButton = document.getElementById('duel');
+    const rematchButton = document.getElementById('rematch');
+
+    if (status && status.duelCompleted) {
+        duelButton.disabled = true;
+        rematchButton.disabled = !status.rematchInitiated;
+    }
+}
 
 function checkAndToggleDuelButton(gameData) {
     const allLockedIn = isEveryoneLockedIn(gameData);
