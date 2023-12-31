@@ -23,6 +23,7 @@ const database = getDatabase();
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('resetButton').addEventListener('click', triggerReset);
     document.getElementById('lockInCards').addEventListener('click', lockInCards);
+    document.getElementById('duel').addEventListener('click', initiateDuel); // Add event li
     displayPlayerInfo();
     listenForReset();
     listenForGameUpdates();
@@ -31,7 +32,92 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+function initiateDuel() {
+    onValue(ref(database, 'game'), (snapshot) => {
+        const gameData = snapshot.val();
+        if (isEveryoneLockedIn(gameData)) {
+            const roundResult = calculateRoundResult(gameData);
 
+            // Update Firebase with duel results
+            set(ref(database, 'game/lastRoundResult'), roundResult)
+                .then(() => {
+                    console.log("Duel results updated in Firebase.");
+                    displayDuelResults(roundResult);
+                    document.getElementById('duel').disabled = true; // Disable duel button after duel
+                    document.getElementById('rematch').disabled = false; // Enable rematch button
+                })
+                .catch((error) => console.error("Error updating duel results: ", error));
+        } else {
+            alert('Not everyone has locked in their cards.');
+        }
+    }, { onlyOnce: true });
+}
+
+function calculateRoundResult(gameData) {
+    let teamAScore = 0, teamBScore = 0;
+    const cardCounts = { teamA: {}, teamB: {} };
+
+    // Function to count cards for each team
+    const countCards = (teamData, team) => {
+        for (const playerName in teamData) {
+            teamData[playerName].cards.forEach(card => {
+                cardCounts[team][card] = (cardCounts[team][card] || 0) + 1;
+            });
+        }
+    };
+
+    // Count cards for each team
+    countCards(gameData.teamA || {}, 'teamA');
+    countCards(gameData.teamB || {}, 'teamB');
+
+    // Apply Quark effect on Robot cards
+    if (cardCounts.teamA['Quark']) {
+        teamBScore -= cardCounts.teamB['Robot'] * 3;
+    }
+    if (cardCounts.teamB['Quark']) {
+        teamAScore -= cardCounts.teamA['Robot'] * 3;
+    }
+
+    // Function to calculate score based on card values and special rules
+    const calculateScore = (team, opposingTeam) => {
+        let score = 0;
+        for (const card in cardValues) {
+            const count = cardCounts[team][card] || 0;
+            const opposingCount = cardCounts[opposingTeam][card] || 0;
+
+            if (count > 0) {
+                if (opposingCount === 0 || count < opposingCount) {
+                    score += cardValues[card] * count;
+                }
+            }
+        }
+        return score;
+    };
+
+    // Calculate scores for each team
+    teamAScore += calculateScore('teamA', 'teamB');
+    teamBScore += calculateScore('teamB', 'teamA');
+
+    let winner = '';
+    if (teamAScore > teamBScore) {
+        winner = 'Team A';
+    } else if (teamAScore < teamBScore) {
+        winner = 'Team B';
+    } else {
+        winner = 'Draw';
+    }
+
+    return {
+        winner,
+        teamAScore,
+        teamBScore
+    };
+}
+
+function displayDuelResults(roundResult) {
+    const resultDiv = document.getElementById('roundResult');
+    resultDiv.innerHTML = `Winner: ${roundResult.winner}<br>Team A Score: ${roundResult.teamAScore}, Team B Score: ${roundResult.teamBScore}`;
+}
 
 function lockInCards() {
     const playerName = localStorage.getItem('playerName');
