@@ -32,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+const cardValues = { 'Robot': 4, 'Tiger': 3, 'Mouse': 2, 'Quark': 1 };
+
 function initiateDuel() {
     onValue(ref(database, 'game'), (snapshot) => {
         const gameData = snapshot.val();
@@ -150,10 +152,13 @@ function checkAndToggleDuelButton(gameData) {
 }
 
 function isEveryoneLockedIn(gameData) {
-    const teamALockedIn = gameData.teamA && Object.values(gameData.teamA).every(player => player.locked);
-    const teamBLockedIn = gameData.teamB && Object.values(gameData.teamB).every(player => player.locked);
-    return teamALockedIn && teamBLockedIn;
+    const teamAPlayers = Object.values(gameData.teamA || {});
+    const teamBPlayers = Object.values(gameData.teamB || {});
+    return teamAPlayers.length === 2 && teamBPlayers.length === 2 &&
+           teamAPlayers.every(player => player.locked) &&
+           teamBPlayers.every(player => player.locked);
 }
+
 
 function updateTeamChoicesUI(gameData) {
     const playerTeam = localStorage.getItem('team');
