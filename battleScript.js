@@ -202,6 +202,19 @@ function listenForGameUpdates() {
  //   rematchButton.disabled = !(status && status.duelCompleted && allLockedIn);
 // }
 
+//function updateGameButtons(gameData) {
+//    const duelButton = document.getElementById('duel');
+ //   const rematchButton = document.getElementById('rematch');
+//    const status = gameData.status || {};
+
+    // Enable duel button if all players have locked in and the duel has not been completed yet
+//    const allLockedIn = isEveryoneLockedIn(gameData);
+ //   duelButton.disabled = !allLockedIn || status.duelCompleted;
+
+    // Enable rematch button only if the duel has been completed
+  //  rematchButton.disabled = !status.duelCompleted;
+//}
+
 function updateGameButtons(gameData) {
     const duelButton = document.getElementById('duel');
     const rematchButton = document.getElementById('rematch');
@@ -211,10 +224,10 @@ function updateGameButtons(gameData) {
     const allLockedIn = isEveryoneLockedIn(gameData);
     duelButton.disabled = !allLockedIn || status.duelCompleted;
 
-    // Enable rematch button only if the duel has been completed
-    rematchButton.disabled = !status.duelCompleted;
+    // Enable rematch button only if the duel has been completed and rematch is not initiated
+    // Disable it once rematch is initiated and waiting for players to lock in again
+    rematchButton.disabled = !status.duelCompleted || status.rematchInitiated;
 }
-
 
 function checkAndToggleDuelButton(gameData) {
     const allLockedIn = isEveryoneLockedIn(gameData);
