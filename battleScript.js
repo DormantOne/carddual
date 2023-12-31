@@ -180,28 +180,40 @@ function listenForGameUpdates() {
 //    }
 // }
 
-function updateGameButtons(status) {
-    const duelButton = document.getElementById('duel');
-    const rematchButton = document.getElementById('rematch');
+//function updateGameButtons(status) {
+//    const duelButton = document.getElementById('duel');
+//    const rematchButton = document.getElementById('rematch');
 
     // Disable duel button if duel is completed
-    if (status && status.duelCompleted) {
-        duelButton.disabled = true;
-    }
-
+//    if (status && status.duelCompleted) {
+//        duelButton.disabled = true;
+ //   }
+//
     // Enable rematch button once the duel is completed
-    if (status && status.duelCompleted) {
-        rematchButton.disabled = false;
-    }
+  //  if (status && status.duelCompleted) {
+ //       rematchButton.disabled = false;
+//    }
 
    // Enable duel button if rematch is initiated and disable it otherwise
-    duelButton.disabled = !(status && status.rematchInitiated);
+ //   duelButton.disabled = !(status && status.rematchInitiated);
 
         // Enable rematch button only if duel is completed and all players have locked in again
-    const allLockedIn = isEveryoneLockedIn(gameData);
-    rematchButton.disabled = !(status && status.duelCompleted && allLockedIn);
-}
+//    const allLockedIn = isEveryoneLockedIn(gameData);
+ //   rematchButton.disabled = !(status && status.duelCompleted && allLockedIn);
+// }
 
+function updateGameButtons(gameData) {
+    const duelButton = document.getElementById('duel');
+    const rematchButton = document.getElementById('rematch');
+    const status = gameData.status || {};
+
+    // Enable duel button if all players have locked in and the duel has not been completed yet
+    const allLockedIn = isEveryoneLockedIn(gameData);
+    duelButton.disabled = !allLockedIn || status.duelCompleted;
+
+    // Enable rematch button only if the duel has been completed
+    rematchButton.disabled = !status.duelCompleted;
+}
 
 
 function checkAndToggleDuelButton(gameData) {
