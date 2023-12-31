@@ -167,17 +167,31 @@ function listenForGameUpdates() {
 
 
 // Insert this
+//function updateGameButtons(status) {
+//    const duelButton = document.getElementById('duel');
+//    const rematchButton = document.getElementById('rematch');
+
+    // Update button states based on the current game status in Firebase
+//    if (status) {
+//        duelButton.disabled = status.duelCompleted; // Disable duel button if duel is completed
+//        rematchButton.disabled = !status.rematchInitiated; // Enable rematch button if rematch is initiated
+//    }
+// }
+
 function updateGameButtons(status) {
     const duelButton = document.getElementById('duel');
     const rematchButton = document.getElementById('rematch');
 
-    // Update button states based on the current game status in Firebase
-    if (status) {
-        duelButton.disabled = status.duelCompleted; // Disable duel button if duel is completed
-        rematchButton.disabled = !status.rematchInitiated; // Enable rematch button if rematch is initiated
+    // Disable duel button if duel is completed
+    if (status && status.duelCompleted) {
+        duelButton.disabled = true;
+    }
+
+    // Enable rematch button once the duel is completed
+    if (status && status.duelCompleted) {
+        rematchButton.disabled = false;
     }
 }
-
 
 function checkAndToggleDuelButton(gameData) {
     const allLockedIn = isEveryoneLockedIn(gameData);
