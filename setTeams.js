@@ -12,10 +12,6 @@ const firebaseConfig = {
     measurementId: "G-KF6XZ6F2MS"
 };
 
-// Check if Firebase has already been initialized
-if (!getApps().length) {
-    initializeApp(firebaseConfig);
-}
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
