@@ -26,9 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
     displayPlayerInfo();
     listenForReset();
     listenForGameUpdates();
-   
+    // Disable the duel button initially
+    document.getElementById('duel').disabled = true;
 
 });
+
+
 
 function lockInCards() {
     const playerName = localStorage.getItem('playerName');
@@ -50,8 +53,20 @@ function listenForGameUpdates() {
         const gameData = snapshot.val();
         if (gameData) {
             updateTeamChoicesUI(gameData);
+            checkAndToggleDuelButton(gameData);
         }
     });
+}
+
+function checkAndToggleDuelButton(gameData) {
+    const allLockedIn = isEveryoneLockedIn(gameData);
+    document.getElementById('duel').disabled = !allLockedIn;
+}
+
+function isEveryoneLockedIn(gameData) {
+    const teamALockedIn = gameData.teamA && Object.values(gameData.teamA).every(player => player.locked);
+    const teamBLockedIn = gameData.teamB && Object.values(gameData.teamB).every(player => player.locked);
+    return teamALockedIn && teamBLockedIn;
 }
 
 function updateTeamChoicesUI(gameData) {
