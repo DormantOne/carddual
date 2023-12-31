@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('resetButton').addEventListener('click', triggerReset);
     document.getElementById('lockInCards').addEventListener('click', lockInCards);
     document.getElementById('duel').addEventListener('click', initiateDuel); // Add event li
+    document.getElementById('rematch').addEventListener('click', startRematch);
+
     displayPlayerInfo();
     listenForReset();
     listenForGameUpdates();
@@ -191,7 +193,15 @@ function updateGameButtons(status) {
     if (status && status.duelCompleted) {
         rematchButton.disabled = false;
     }
+
+   // Enable duel button if rematch is initiated and disable it otherwise
+    duelButton.disabled = !(status && status.rematchInitiated);
+
+    // Disable rematch button once it's clicked
+    rematchButton.disabled = status && status.rematchInitiated;
 }
+
+
 
 function checkAndToggleDuelButton(gameData) {
     const allLockedIn = isEveryoneLockedIn(gameData);
@@ -266,3 +276,34 @@ function listenForReset() {
         }
     });
 }
+
+function startRematch() {
+    onValue(ref(database, 'game'), (snapshot) => {
+        const gameData = snapshot.val();
+        if (gameData) {
+            // Reset card selections and locked status for each player
+            for (const team in gameData) {
+                if (team === 'teamA' || team === 'teamB') {
+                    for (const player in gameData[team]) {
+                        gameData[team][player].cards = [];
+                        gameData[team][player].locked = false;
+                    }
+                }
+            }
+
+            // Update game status
+            const updatedGameState = {
+                ...gameData,
+                status: {
+                    duelCompleted: false,
+                    rematchInitiated: true
+                }
+            };
+
+            set(ref(database, 'game'), updatedGameState)
+                .then(() => console.log("Game reset for rematch."))
+                .catch((error) => console.error("Error resetting game for rematch: ", error));
+        }
+    }, { onlyOnce: true });
+}
+
