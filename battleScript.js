@@ -197,8 +197,9 @@ function updateGameButtons(status) {
    // Enable duel button if rematch is initiated and disable it otherwise
     duelButton.disabled = !(status && status.rematchInitiated);
 
-    // Disable rematch button once it's clicked
-    rematchButton.disabled = status && status.rematchInitiated;
+        // Enable rematch button only if duel is completed and all players have locked in again
+    const allLockedIn = isEveryoneLockedIn(gameData);
+    rematchButton.disabled = !(status && status.duelCompleted && allLockedIn);
 }
 
 
