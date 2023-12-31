@@ -135,6 +135,8 @@ function lockInCards() {
     });
 }
 
+
+
 function listenForGameUpdates() {
     const gameRef = ref(database, 'game');
     onValue(gameRef, (snapshot) => {
@@ -142,9 +144,15 @@ function listenForGameUpdates() {
         if (gameData) {
             updateTeamChoicesUI(gameData);
             checkAndToggleDuelButton(gameData);
+
+            // Check for duel results and display them
+            if (gameData.lastRoundResult) {
+                displayDuelResults(gameData.lastRoundResult);
+            }
         }
     });
 }
+
 
 function checkAndToggleDuelButton(gameData) {
     const allLockedIn = isEveryoneLockedIn(gameData);
